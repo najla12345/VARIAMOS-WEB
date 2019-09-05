@@ -145,14 +145,14 @@ var istar_main = function istar_main(graph)
 		var task = {src:projectPath+"images/models/istar/Task.png", wd:125, hg:50, style:"shape=task;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"task", pname:"Task"};
     var resource = {src:projectPath+"images/models/istar/Resource.png", wd:125, hg:50, style:"shape=resource;html=1;whiteSpace=wrap;overflow=visible;fontColor=black;", type:"resource", pname:"Resource"};
     
-    /*
+    //tests
     const securityConstraint = {src:projectPath+"images/models/component/file.png", wd:100, hg:100, style:"shape=secconstraint;html=1;whiteSpace=wrap;overflow=visible;fontColor=black;", type:"secconstraint", pname:"Security Constraint"};
     const securityObjective = {src:projectPath+"images/models/component/file.png", wd:100, hg:100, style:"shape=secobjective;html=1;whiteSpace=wrap;overflow=visible;fontColor=black;", type:"secobjective", pname:"Security Objective"};
     const securityMechanism = {src:projectPath+"images/models/component/file.png", wd:125, hg:50, style:"shape=secmechanism;html=1;whiteSpace=wrap;overflow=visible;fontColor=black;", type:"secmechanism", pname:"Security Mechanism"};
     const threat = {src:projectPath+"images/models/component/file.png", wd:100, hg:100, style:"shape=threat;html=1;whiteSpace=wrap;overflow=visible;fontColor=black;", type:"threat", pname:"Threat"};
     const attack = {src:projectPath+"images/models/component/file.png", wd:100, hg:100, style:"shape=attack;html=1;whiteSpace=wrap;overflow=visible;fontColor=black;", type:"attack", pname:"Attack"};
     const vulnerability = {src:projectPath+"images/models/component/file.png", wd:125, hg:50, style:"shape=vulnerability;html=1;whiteSpace=wrap;overflow=visible;fontColor=black;", type:"vulnerability", pname:"Vulnerability"};
-    */
+    
 
 		var elements=[];
 		elements.push(actor);
@@ -163,7 +163,7 @@ var istar_main = function istar_main(graph)
     elements.push(task);
     elements.push(resource);
 
-    /*
+    
     //tests
     elements.push(securityConstraint);
     elements.push(securityObjective);
@@ -171,7 +171,7 @@ var istar_main = function istar_main(graph)
     elements.push(threat);
     elements.push(attack);
     elements.push(vulnerability)
-    */
+    
    
 		return elements;
 	}
@@ -765,7 +765,7 @@ var istar_main = function istar_main(graph)
     //this.value should carry the value that has been changed to
     graph.getModel().beginUpdate();
     try {
-      if (target.edges.length > 1){
+      if (target.edges.length > 0){
         target.edges.forEach(edge => {
           const source = edge.getTerminal(true);
           const sourceType = source.getAttribute('type');

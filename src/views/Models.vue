@@ -356,7 +356,8 @@ export default{
   overflow-block: scroll;
   overflow-x: auto;
   overflow-y: auto;
-  height:350px;
+  /*Test to better fit screen*/
+  height:55vh;
   background:url("../assets/images/grid.gif");
   cursor:default;
   padding-right: 0px; 
