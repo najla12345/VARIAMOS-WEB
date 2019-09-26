@@ -181,7 +181,7 @@
 <!-- /i* -->
 
 <!-- secure tropos -->
-<shape name="satisfies" aspect="fixed" strokewidth="3">
+<shape name="satisfies" aspect="fixed" strokewidth="10">
 	<foreground>
 		<path>
 			<move x="0" y="0"/>
@@ -208,6 +208,17 @@
 		<strokecolor color="#000000"/>
 		<fillcolor color="#000000"/>
 		<fillstroke/>
+	</foreground>
+</shape>
+
+<shape name="affects" aspect="fixed" strokewidth="10">
+	<foreground>
+		<path>
+			<move x="0" y="0"/>
+			<line x="100" y="50"/>
+			<line x="0" y="100"/>
+			<stroke/>
+		</path>
 	</foreground>
 </shape>
 
