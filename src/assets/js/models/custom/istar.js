@@ -826,7 +826,7 @@ let istar_main = function istar_main(graph)
                 console.log('sourceCell :', sourceCell);
                 console.log('targetCell :', targetCell);
                 const newEdge = graph.insertEdge(boundaryCell, uuidv1(), edge.value, sourceCell, targetCell, edge.style);
-                if(newEdge.getAttribute('type').includes('dependum')){
+                if(newEdge.getAttribute('type').includes('dependum') || edge.children !== null){
                   //Gather the state information of both the source and target elements.
                   const sourceState = graph.view.getState(sourceCell);
                   const sourceGeo = sourceCell.getGeometry();
@@ -841,13 +841,17 @@ let istar_main = function istar_main(graph)
                   //Calculate the angle given by the edge in its current orientation.
                   const angle = (Math.atan2(destY-initY,destX-initX) * (180/Math.PI)).toFixed(0);
                   //Insert a new element onto the the edge with the calculated angle.
-                  const capitald = graph.insertVertex(newEdge,uuidv1(),null,0,0,20,20,'shape=capitald;fillColor=#FFFFFF;rotation='+angle+';selectable=0;');
+                  const childPresent = (edge.children !== null);
+                  const style = childPresent ? edge.children[0].getStyle() : 'shape=capitald;fillColor=#FFFFFF;rotation='+angle+';selectable=0;';
+                  const {height: edgeChildGeoX, width: edgeChildGeoY} = childPresent ? edge.children[0].getGeometry() : {height: 20, width: 20};
+                  const capitald = graph.insertVertex(newEdge,uuidv1(),null,0,0, edgeChildGeoX, edgeChildGeoY, style);
                   //Set the offset of the element so that it is centered. 
-                  capitald.geometry.offset = new mxPoint(-10, -10);
+                  capitald.geometry.offset = childPresent ? edge.children[0].getGeometry().offset : new mxPoint(-10, -10);
                   capitald.geometry.relative = true;
                   //Set the element as unconnectable.
                   capitald.connectable = false;
                 }
+                newEdge.setGeometry(edge.geo);
                 done.push({t1:sourceCell.getId(),t2:targetCell.getId()});
               }
             })
@@ -882,7 +886,9 @@ let istar_main = function istar_main(graph)
                   const target = edge.getTerminal(false).getId();
                   const style = edge.getStyle();
                   const type = edge.getAttribute('type');
-                  innerEdges.push({value, isSource, source, target, style, type});
+                  const children = edge.getChildCount() > 0 ? [...edge.children] : null;
+                  const geo = edge.getGeometry();
+                  innerEdges.push({value, isSource, source, target, style, type, children, geo});
                 }
               }
               //Now we map every id to its corresponding cell and edges so that we can reconstruct it later.
@@ -922,6 +928,8 @@ let istar_main = function istar_main(graph)
                 capitald.geometry.relative = true;
                 //Set the element as unconnectable.
                 capitald.connectable = false;
+                //Set edge geometry to get text label out of the way
+                newEdge.setGeometry(edge.geo);
               }
             })
           }
