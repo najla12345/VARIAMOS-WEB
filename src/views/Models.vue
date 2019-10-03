@@ -35,19 +35,22 @@
 
               <div class="row main_area">
 
-                <div class="col-sm-9 left-area">
+                <div id="left-draw" class="col-sm-9 left-area">
                   <div id="graphContainer" class="model-area"></div>
                   <div class="properties-area" style="font-size:13px"><b>{{ $t("models_element_properties") }}</b><br />
                     <div id="properties"></div>
                   </div>
                 </div>
 
-                <div class="col-sm-3 right-area" style="font-size:13px">
+                <div id="right-draw" class="col-sm-3 right-area" style="font-size:13px">
                   <div class="pallete-area">
                   <b>{{ $t("models_palette") }}</b><br /><br />
                   <div id="tbContainer"></div>
                   </div>
-                  <div class="other-area"><b>{{ $t("models_navigator") }}</b>
+                  <div class="other-area"><!--<b>{{ $t("models_navigator") }}</b>-->
+                  <div class="navi-buttons">
+                    <div id="buttonZIN"></div><div id="buttonZOUT"></div><div id="buttonZR"></div>
+                  </div>
                   <div id="navigator" class="navigator"></div>
                   </div>
                 </div>
@@ -251,19 +254,6 @@ export default{
         this.undoManager.clear();
       }
     },
-    /**
-     * if there is any change in the mxgraph, update the xml in the store
-     * @fires module:store~actions:updatexml
-     */ 
-    mxModel:{
-      handler(val) {
-        let encoder = new mxCodec();
-        let result = encoder.encode(this.graph.getModel());
-        let xml = mxUtils.getPrettyXml(result);
-        this.$store.dispatch('updatexml', xml);
-      },
-      deep:true
-    },
     // when the selected elements cache is changed, update localstorage
     getcache_selected: {
 			handler(val) {
@@ -329,7 +319,7 @@ export default{
 
 .navigator{
   border: 2px solid rgba(0,0,0,.125);
-  margin-top: 10px;
+  margin-top: 5px;
 }
 
 .button-area{
@@ -397,5 +387,24 @@ table{
 
 .pallete-div span{
   font-size: 12px;
+}
+
+.nav-item a{
+  cursor: pointer;
+}
+
+.navi-buttons{
+  display: flex;
+  margin: 0 auto;
+  justify-content: flex-end;
+}
+
+.navi-buttons button{
+  border: 1px solid #ccc;
+  padding: 2px;
+  padding-left: 7px;
+  padding-right: 7px;
+  width: 25px;
+  margin-right: 2px;
 }
 </style>
