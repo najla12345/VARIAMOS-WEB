@@ -293,6 +293,7 @@ let istar_main = function istar_main(graph)
     const attack = {src:projectPath+"images/models/istar/attack.png", wd:100, hg:100, style:"shape=attack;html=1;whiteSpace=wrap;overflow=visible;fontColor=black;", type:"attack", pname:"Attack"};
     const vulnerability = {src:projectPath+"images/models/istar/vulnerability.png", wd:125, hg:50, style:"shape=vulnerability;html=1;whiteSpace=wrap;overflow=visible;fontColor=black;", type:"vulnerability", pname:"Vulnerability"};
     
+    const organization = {src:projectPath+"images/models/component/file.png", wd:250, hg:250, style:"shape=rectangle;fillColor=none;dashed=1;dashPattern=10 10;rounded=1;arcSize=15;verticalAlign=top;fontColor=black;fontSize=20;fontStyle=1;", type:"organization", pname:"Organization"}
 
 		let elements=[];
 		elements.push(actor);
@@ -310,8 +311,9 @@ let istar_main = function istar_main(graph)
     elements.push(securityMechanism);
     elements.push(threat);
     elements.push(attack);
-    elements.push(vulnerability)
+    elements.push(vulnerability);
     
+    elements.push(organization);
    
 		return elements;
 	}
@@ -725,7 +727,7 @@ let istar_main = function istar_main(graph)
   function istar_custom_methods(pos){
 		let methods=[]
 		methods.push(function(_prototype, cell){
-      if(cell !== null){
+      if(cell !== null && cell.getAttribute('type') !== "organization"){
         alert("you may not add actor within another\'s boundary")
         return false;
       }
@@ -1053,7 +1055,7 @@ let istar_main = function istar_main(graph)
               const sourceParentGeo = sourceParent.getGeometry();
               const sourceParentValue = sourceParent.getValue();
               //Check if the cell is inside a boudary.
-              if(sourceParentValue !== undefined && sourceParentValue.type !== undefined && sourceParentValue.type  === 'boundary'){
+              if(sourceParentValue !== undefined && ((sourceParentValue.type !== undefined && sourceParentValue.type  === 'boundary') || sourceParent.getAttribute('type') === 'organization')){
                 //If the cell is inside a boudary, its position is then given by the 
                 //position of the boundary + its offset + the center of its bounding rectangle.
                 //The state allows us to calculate the current size of the element and
@@ -1073,7 +1075,7 @@ let istar_main = function istar_main(graph)
               const targetParentGeo = targetParent.getGeometry();
               const targetParentValue = targetParent.getValue();
               //Check if the target cell is inside a boudary.
-              if(targetParentValue !== undefined && targetParentValue.type !== undefined && targetParentValue.type  === 'boundary'){
+              if(targetParentValue !== undefined && ((targetParentValue.type !== undefined && targetParentValue.type  === 'boundary') || targetParent.getAttribute('type') === 'organization')){
                 //Same as above...
                 //const targetStateShape = graph.view.getState(target);
                 destX = targetParentGeo.x + targetGeo.x + (targetGeo.width/2);

@@ -80,12 +80,15 @@ let setup_elements = function setup_elements(graph, elements, custom_attributes,
                 new_cells.forEach(element => {
                     const type = element.getAttribute("type");
                     if(["goal","quality","task","resource","secconstraint"].includes(type)){
-                        if(cell == null){
+                        if(cell === null || (cell !== null && cell.getAttribute('type') === 'organization')){
                             element.setAttribute("dependum", "true");
                             element.setAttribute("type", type + "-dependum");
                         } else {
                             element.setAttribute("dependum", "false");
                         }
+                    } else if(["organization"].includes(type)){
+                        graph.insertVertex(element, null, '', 0, 0, 0, 0, '');
+                        element.setConnectable(false);
                     }
                 })
                 graph.setSelectionCells(new_cells);
