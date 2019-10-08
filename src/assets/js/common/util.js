@@ -61,6 +61,40 @@ export function modalInputTexts(texts,inputs,default_vals){
     return table;
 }
 
+export function modalComponentInformation(structure){
+    let table = document.createElement('table');
+    structure.elements.forEach(element => {
+        let tr = document.createElement('tr');
+        let td = document.createElement('td');
+        td.innerHTML=element.element_id;
+        tr.appendChild(td);
+
+        let input = {};
+
+        if(element.element_type === 'text'){
+            input = document.createElement('input');
+            input.size=48;
+        }
+        else if(element.element_type === 'combo'){
+            input = document.createElement("select");
+            element.element_items.forEach(optionText => {
+                const option = document.createElement('option');
+                option.value = optionText;
+                option.text = optionText;
+                input.appendChild(option);
+            });
+        }else{
+            alert("A problem occurred");
+        }
+
+        let td2 = document.createElement('td');
+        td2.appendChild(input);
+        tr.appendChild(td2);
+        table.appendChild(tr);
+    });
+    return table;
+}
+
 export function modalCustomization(texts,inputs,default_vals){
     let table = document.createElement('table');
     for(let i=0;i<texts.length;i++){

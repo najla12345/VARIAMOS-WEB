@@ -9,7 +9,7 @@ let component_main = function component_main(graph)
 	data["m_relation_styles"]=component_relation_styles(); //custom relation styles
 	data["m_constraints_relations"]=component_constraints_relations; //custom constraints for relations
 	return data;
-	
+
 	function component_constraints(graph){
 		graph.multiplicities=[]; //reset multiplicities
 		graph.multiplicities.push(new mxMultiplicity(
@@ -116,6 +116,12 @@ let component_main = function component_main(graph)
 		}
 
 		return true;
+	}
+
+	function addComponentInfo(_sender, evt){
+		console.log(evt);
+		const cells = evt.getProperty('cells');
+		evt.consume();
 	}
 
 }
