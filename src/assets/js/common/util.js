@@ -63,34 +63,59 @@ export function modalInputTexts(texts,inputs,default_vals){
 
 export function modalComponentInformation(structure){
     let table = document.createElement('table');
-    structure.elements.forEach(element => {
-        let tr = document.createElement('tr');
-        let td = document.createElement('td');
-        td.innerHTML=element.element_id;
-        tr.appendChild(td);
+    Object.keys(structure).forEach(function(key_category,index) {
+        // key: the name of the object key
+        // index: the ordinal position of the key within the object
+        const subcategory = structure[key_category];
+        Object.keys(subcategory).forEach(function(key_subcategory,index) {
+            subcategory[key_subcategory].forEach(element => {
+                let tr = document.createElement('tr');
+                let td = document.createElement('td');
+                td.innerHTML=element.element_id;
+                tr.appendChild(td);
 
-        let input = {};
+                let input = null;
 
-        if(element.element_type === 'text'){
-            input = document.createElement('input');
-            input.size=48;
-        }
-        else if(element.element_type === 'combo'){
-            input = document.createElement("select");
-            element.element_items.forEach(optionText => {
-                const option = document.createElement('option');
-                option.value = optionText;
-                option.text = optionText;
-                input.appendChild(option);
+                if(element.element_type === 'label'){
+                    /* input = document.createElement('Label');
+                    input.innerHTML = ''; */
+                }
+                else if(element.element_type === 'text'){
+                    input = document.createElement('input');
+                    input.size=48;
+                }
+                else if(element.element_type === 'combo'){
+                    input = document.createElement("select");
+                    let index = 0;
+                    element.element_items.forEach(optionText => {
+                        const option = document.createElement('option');
+                        option.value = index++;
+                        option.text = optionText;
+                        input.appendChild(option);
+                    });
+                }else{
+                    alert("A problem occurred");
+                }
+
+                let td2 = document.createElement('td');
+                if(input !== null){
+                    input.addEventListener('input', function(){
+                        element.value = input.value;
+                    });
+                    if(element.value !== undefined && element.value !== null){
+                        if(element.element_type === 'combo'){
+                            input.selectedIndex = element.value;
+                        } else {
+                            input.value = element.value;
+                            input.innerHTML = element.value;
+                        }
+                    }
+                    td2.appendChild(input);
+                }
+                tr.appendChild(td2);
+                table.appendChild(tr);
             });
-        }else{
-            alert("A problem occurred");
-        }
-
-        let td2 = document.createElement('td');
-        td2.appendChild(input);
-        tr.appendChild(td2);
-        table.appendChild(tr);
+        });
     });
     return table;
 }
