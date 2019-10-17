@@ -20,6 +20,11 @@ export function setupModal(header_content,body_content="",footer_content="")
     main_modal_header.appendChild(header_content);
     if(body_content!=""){main_modal_body.appendChild(body_content);}
     if(footer_content!=""){main_modal_footer.appendChild(footer_content);}
+    main_modal_body.scrollTo(0,200);
+    main_modal_body.style.overflowX='scroll';
+    main_modal_body.style.overflowY='scroll';
+    main_modal.style.overflowX='auto';
+    main_modal.style.overflowY='auto';
 }
 
 export function modalH3(text,type="normal"){
@@ -58,6 +63,113 @@ export function modalInputTexts(texts,inputs,default_vals){
         tr.appendChild(td2);
         table.appendChild(tr);
     }
+    return table;
+}
+
+export function modalComponentInformation(structure){
+    let table = document.createElement('table');
+
+    Object.keys(structure).forEach(function(key_category,index) {
+        let olaux=document.createElement('ol');
+        
+        // key: the name of the object key
+        // index: the ordinal position of the key within the object
+        const subcategory = structure[key_category];
+        Object.keys(subcategory).forEach(function(key_subcategory,index) {
+            subcategory[key_subcategory].forEach(element => {
+               let ol=null;
+               // let ol = document.createElement('ol');
+            
+                let tr = document.createElement('tr');
+                let td = document.createElement('td');
+                let x;
+                if ((element.element_type === 'label') && (element.element_parent === 'yes'))
+                {if(ol==null)
+                    {ol = document.createElement('ol');
+                   
+                }
+                     x=element.element_id;
+                     ol.innerHTML=element.element_id;
+             
+                
+                
+                   olaux=ol;
+                  //tr.appendChild(olaux);
+                }
+                if((element.element_type === 'text')||(element.element_type === 'combo')||(element.element_type === 'textarea'))
+                   { let li = document.createElement('li');  
+                    li.innerHTML=element.element_id;;
+                    olaux.appendChild(li);
+                    console.log('mon pere est');
+                
+                    console.log('je suis le fils');
+                
+                  //  td=li;  
+           //   td=li
+               // tr.appendChild(td);
+            
+        
+            
+                let input = null;
+
+                if(element.element_type === 'label'){
+                    /* input = document.createElement('Label');
+                    input.innerHTML = ''; */
+                 
+                }
+                else if(element.element_type === 'text'){
+                    input = document.createElement('input');
+                    input.size=48;
+                }
+                else if(element.element_type === 'textarea'){
+                    input = document.createElement('textarea');
+                    input.cols=50;
+                }
+                else if(element.element_type === 'combo'){
+                    input = document.createElement("select");
+                    let index = 0;
+                    element.element_items.forEach(optionText => {
+                        const option = document.createElement('option');
+                        option.value = index++;
+                        option.text = optionText;
+                        input.appendChild(option);
+                    });
+                }else{
+                    alert("A problem occurred");
+                }
+
+                let td2 = document.createElement('td');
+                if(input !== null){
+                    input.addEventListener('input', function(){
+                        element.value = input.value;
+                    });
+                    if(element.value !== undefined && element.value !== null){
+                        if(element.element_type === 'combo'){
+                            input.selectedIndex = element.value;
+                        } else {
+                            input.value = element.value;
+                            input.innerHTML = element.value;
+                        }
+                    
+                    }
+                    td.appendChild(olaux);
+                
+                    td2.appendChild(input);
+                  
+                }
+               
+                tr.appendChild(td);
+                tr.appendChild(td2);
+                
+            }
+         
+                table.appendChild(tr);
+   
+                
+//table.scrollTo(200,0);
+            });
+        });
+    });
     return table;
 }
 
