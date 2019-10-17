@@ -12,9 +12,14 @@ let setup_istar_relations = function setup_istar_relations(graph,relations,relat
             ["goal-dependum","quality-dependum","task-dependum","resource-dependum"].includes(targetType) 
             && target.getAttribute("dependum") === "true"
         )
-
-        const restricts = false; /*["secconstraint"].includes(sourceType) && ["goal"].includes(targetType);*/
-        const satisfies = false;
+        
+        //rel_secobjective_secconstraint
+        const satisfies = ["secobjective"].includes(sourceType) && ["secconstraint"].includes(targetType);
+        //rel_secmechanism_secobjective || rel_secmechanism_vulnerability
+        const impl = ["secmechanism"].includes(sourceType) && ["secobjective", "vulnerability"].includes(targetType);
+        //rel_vulnerability_goal || rel_attack_vulnerability
+        const affects = (["vulnerability"].includes(sourceType) && ["goal","quality","task","resource"].includes(targetType)) 
+            || (["attack"].includes(sourceType) && ["vulnerability"].includes(targetType));
 
         let relationType = 'rel_'+sourceType+'_'+targetType;
 
@@ -44,7 +49,8 @@ let setup_istar_relations = function setup_istar_relations(graph,relations,relat
             targetParentValue !== undefined &&
             targetParentValue.type !== undefined && 
             targetParentValue.type === "boundary" && 
-            sourceParent !== targetParent
+            sourceParent !== targetParent &&
+            !(["attack"].includes(sourceType) && ["vulnerability"].includes(targetType))
         ){
             alert("You may not connect an intentional element within a boundary to another in some other actor's boundary");
             return null;
@@ -96,7 +102,7 @@ let setup_istar_relations = function setup_istar_relations(graph,relations,relat
         const cell = graph.insertEdge(parent, id, node, source, target, style);
 
         //Check if the edge belongs is connected to a dependum element.
-        if(dependum || restricts){
+        if(dependum || satisfies || impl || affects){
             //Gather the state information of both the source and target elements.
             const sourceState = graph.view.getState(source);
             const targetState = graph.view.getState(target);
@@ -107,18 +113,29 @@ let setup_istar_relations = function setup_istar_relations(graph,relations,relat
             const destY = targetState.y + (targetState.height/2);
             //Calculate the angle given by the edge in its current orientation.
             const angle = (Math.atan2(destY-initY,destX-initX) * (180/Math.PI)).toFixed(0);
-            //Insert a new element onto the the edge with the calculated angle.
+            //Check the type and select the correct shape
             const shape = 
             dependum 
             ? "capitald" 
-            : restricts 
+            : impl 
             ? "diamond" 
             : satisfies 
-            ? "satisfies" 
+            ? "satisfies"
+            : affects
+            ? "affects" 
             : "file";
-            const capitald = graph.insertVertex(cell,null,null,0,0,20,20,'shape='+shape+';fillColor=#FFFFFF;rotation='+angle+';');
+            const size = 
+            impl || satisfies
+            ? 10 
+            : 20;
+            const offset =
+            impl || satisfies
+            ? -5 
+            : -10;
+            //Insert a new element onto the the edge with the calculated angle.
+            const capitald = graph.insertVertex(cell,null,null,0,0,size,size,'shape='+shape+';fillColor=#FFFFFF;rotation='+angle+';selectable=0;');
             //Set the offset of the element so that it is centered. 
-            capitald.geometry.offset = new mxPoint(-10, -10);
+            capitald.geometry.offset = new mxPoint(offset, offset);
             capitald.geometry.relative = true;
             //Set the element as unconnectable.
             capitald.connectable = false;

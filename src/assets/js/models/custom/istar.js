@@ -1,9 +1,10 @@
 let istar_main = function istar_main(graph)
 {
-  istar_constraints();
   istar_custom_markers();
   istar_custom_events();
-	let data={};
+  istar_custom_graph_overrides();
+  istar_constraints();
+	var data={};
 	data["m_type"]="normal"; //custom type
 	data["m_elements"]=istar_elements(); //custom elements
   data["m_attributes"]=istar_attributes(); //custom attributes
@@ -28,45 +29,41 @@ let istar_main = function istar_main(graph)
       "Only shape targets allowed"));
     */
    //Only allow one outgoing connection out of a dependum
+   graph.multiplicities.push(new mxMultiplicity(true,"goal","dependum","true",0,null,
+      ["secconstraint"],
+      "Only 1 outgoing connection allowed","Only shape targets allowed1"));
     graph.multiplicities.push(new mxMultiplicity(true,"goal","dependum","true",0,1,
       ["actor","agent","role","goal","quality","task","resource"],
-      "Only 1 outgoing connection allowed","Only shape targets allowed"));
+      "Only 1 outgoing connection allowed","Only shape targets allowed2"));
     graph.multiplicities.push(new mxMultiplicity(true,"quality","dependum","true",0,1,
-      ["actor","agent","role","goal","quality","task","resource"],
+      ["actor","agent","role","goal","quality","task","resource","secconstraint"],
       "Only 1 outgoing connection allowed","Only shape targets allowed"));
     graph.multiplicities.push(new mxMultiplicity(true,"task","dependum","true",0,1,
-      ["actor","agent","role","goal","quality","task","resource"],
+      ["actor","agent","role","goal","quality","task","resource","secconstraint"],
       "Only 1 outgoing connection allowed","Only shape targets allowed"));
     graph.multiplicities.push(new mxMultiplicity(true,"resource","dependum","true",0,1,
-      ["actor","agent","role","goal","quality","task","resource"],
+      ["actor","agent","role","goal","quality","task","resource","secconstraint"],
       "Only 1 outgoing connection allowed","Only shape targets allowed"));
+    //Well formed relationships should, for instance, disallow direct/indirect connections between
+    //Goal-D, Resource-D, Task-D, Quality-D
     //Only allow one incoming connection into a dependum
     graph.multiplicities.push(new mxMultiplicity(false,"goal","dependum","true",0,1,
-      ["actor","agent","role","goal","quality","task","resource"],
+      ["actor","agent","role","goal","quality","task","resource","secconstraint"],
       "Only 1 incoming connection allowed","Only shape targets allowed"));
     graph.multiplicities.push(new mxMultiplicity(false,"quality","dependum","true",0,1,
-      ["actor","agent","role","goal","quality","task","resource"],
+      ["actor","agent","role","goal","quality","task","resource","secconstraint"],
       "Only 1 incoming connection allowed","Only shape targets allowed"));
     graph.multiplicities.push(new mxMultiplicity(false,"task","dependum","true",0,1,
-      ["actor","agent","role","goal","quality","task","resource"],
+      ["actor","agent","role","goal","quality","task","resource","secconstraint"],
       "Only 1 incoming connection allowed","Only shape targets allowed"));
     graph.multiplicities.push(new mxMultiplicity(false,"resource","dependum","true",0,1,
-      ["actor","agent","role","goal","quality","task","resource"],
+      ["actor","agent","role","goal","quality","task","resource","secconstraint"],
       "Only 1 incoming connection allowed","Only shape targets allowed"));
-    //Disallow actors/roles/agents from connecting to things within their own boundaries
-    //or into elements wihin the boundaries of others without passing through a dependum.
-    /* graph.multiplicities.push(new mxMultiplicity(false,"goal","dependum","false",0,0,
-      ["actor","agent","role"],"Actors/Roles/Agents may not connect directly to intentional elements inside boundaries",
-      "Only shape targets allowed"));
-    graph.multiplicities.push(new mxMultiplicity(false,"quality","dependum","false",0,0,
-      ["actor","agent","role"],"Actors/Roles/Agents may not connect directly to intentional elements inside boundaries",
-      "Only shape targets allowed"));
-    graph.multiplicities.push(new mxMultiplicity(false,"task","dependum","false",0,0,
-      ["actor","agent","role"],"Actors/Roles/Agents may not connect directly to intentional elements inside boundaries",
-      "Only shape targets allowed"));
-    graph.multiplicities.push(new mxMultiplicity(false,"resource","dependum","false",0,0,
-      ["actor","agent","role"],"Actors/Roles/Agents may not connect directly to intentional elements inside boundaries",
-      "Only shape targets allowed")); */
+    /* //Enforce Relationship Orientation
+    graph.multiplicities.push(new mxMultiplicity(true,"goal","dependum","false",0,0,
+      ["secconstraint"],
+      "Restrictions must originate from Constraints","Only shape targets allowed", true)); */
+    
   }
   
   function istar_custom_markers(){
@@ -136,6 +133,149 @@ let istar_main = function istar_main(graph)
     graph.addListener(mxEvent.MOVE_CELLS, reorientElement);
   };
 
+  function istar_custom_graph_overrides(){
+    let cellLabelChanged = graph.cellLabelChanged;
+    graph.cellLabelChanged = function(cell, newValue, autoSize)
+    {
+      if (mxUtils.isNode(cell.value))
+      {
+        // Clones the value for correct undo/redo
+        var elt = cell.value.cloneNode(true);
+        elt.setAttribute('label', newValue);
+        newValue = elt;
+      }
+
+      cellLabelChanged.apply(this, arguments);
+    };
+
+    graph.isHtmlLabel = function(cell){
+      return mxUtils.isNode(cell.value);
+    }
+
+    graph.isCellSelectable = function(cell)
+    {
+      let state = this.view.getState(cell);
+      let style = (state != null) ? state.style : this.getCellStyle(cell);
+
+      return this.isCellsSelectable() && !this.isCellLocked(cell) && style['selectable'] != 0;
+    };
+
+    graph.getEdgeValidationError = function(edge, source, target)
+    {
+      if (edge != null && !this.isAllowDanglingEdges() && (source == null || target == null))
+      {
+        return '';  
+      }
+
+      if (edge != null && this.model.getTerminal(edge, true) == null &&
+      this.model.getTerminal(edge, false) == null)	
+      {
+        return null;
+      }
+
+      // Checks if we're dealing with a loop
+      if (!this.allowLoops && source == target && source != null)
+      {
+        return '';
+      }
+
+      // Checks if the connection is generally allowed
+      if (!this.isValidConnection(source, target))
+      {
+        return '';
+      }
+
+      if (source != null && target != null)
+      {
+        var error = '';
+
+        // Checks if the cells are already connected
+        // and adds an error message if required			
+        if (!this.multigraph)
+        {
+          var tmp = this.model.getEdgesBetween(source, target, true);
+          
+          // Checks if the source and target are not connected by another edge
+          if (tmp.length > 1 || (tmp.length == 1 && tmp[0] != edge))
+          {
+            error += (mxResources.get(this.alreadyConnectedResource) ||
+              this.alreadyConnectedResource)+'\n';
+          }
+        }
+
+        // Gets the number of outgoing edges from the source
+        // and the number of incoming edges from the target
+        // without counting the edge being currently changed.
+        var sourceOut = this.model.getDirectedEdgeCount(source, true, edge);
+        var targetIn = this.model.getDirectedEdgeCount(target, false, edge);
+
+        let prevErr = error;
+        // Checks the change against each multiplicity rule
+        if (this.multiplicities != null)
+        {
+          for (var i = 0; i < this.multiplicities.length; i++)
+          {
+            var err = this.multiplicities[i].check(this, edge, source,
+              target, sourceOut, targetIn);
+            
+            if (err != null)
+            {
+              error += err;
+            }
+          }
+          if(error.includes('valid')){
+            error = prevErr;
+          }
+        }
+
+        // Validates the source and target terminals independently
+        var err = this.validateEdge(edge, source, target);
+
+        if (err != null)
+        {
+          error += err;
+        }
+            
+        return (error.length > 0) ? error : null;
+      }
+
+      return (this.allowDanglingEdges) ? null : '';
+    };
+
+    //We must override the prototype
+    mxMultiplicity.prototype.check = function(graph, edge, source, target, sourceOut, targetIn)
+    {
+      var error = '';
+
+      if ((this.source && this.checkTerminal(graph, source, edge)) ||
+        (!this.source && this.checkTerminal(graph, target, edge)))
+      {
+        if (this.countError != null && 
+          ((this.source && (this.max == 0 || (sourceOut >= this.max))) ||
+          (!this.source && (this.max == 0 || (targetIn >= this.max)))))
+        {
+          error += this.countError + '\n';
+        }
+
+        if (this.validNeighbors != null && this.typeError != null && this.validNeighbors.length > 0)
+        {
+          var isValid = this.checkNeighbors(graph, edge, source, target);
+
+          if (!isValid)
+          {
+            error += this.typeError + '\n';
+          }
+          else if(error === '')
+          {
+            error = 'valid';
+          }
+        }
+      }
+      
+      return (error.length > 0) ? error : null;
+    };
+  }
+
 	function istar_elements(){
     let actor = {src:projectPath+"images/models/istar/Actor.png", wd:100, hg:100, style:"shape=actor;perimeter=ellipsePerimeter;html=1;whiteSpace=wrap;overflow=visible;fontColor=black;", type:"actor", pname:"Actor"};
     let agent = {src:projectPath+"images/models/istar/Agent.png", wd:100, hg:100, style:"shape=agent;perimeter=ellipsePerimeter;html=1;whiteSpace=wrap;overflow=visible;fontColor=black;", type:"agent", pname:"Agent"};
@@ -145,14 +285,15 @@ let istar_main = function istar_main(graph)
 		let task = {src:projectPath+"images/models/istar/Task.png", wd:125, hg:50, style:"shape=task;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"task", pname:"Task"};
     let resource = {src:projectPath+"images/models/istar/Resource.png", wd:125, hg:50, style:"shape=resource;html=1;whiteSpace=wrap;overflow=visible;fontColor=black;", type:"resource", pname:"Resource"};
     
-    /*
-    const securityConstraint = {src:projectPath+"images/models/component/file.png", wd:100, hg:100, style:"shape=secconstraint;html=1;whiteSpace=wrap;overflow=visible;fontColor=black;", type:"secconstraint", pname:"Security Constraint"};
-    const securityObjective = {src:projectPath+"images/models/component/file.png", wd:100, hg:100, style:"shape=secobjective;html=1;whiteSpace=wrap;overflow=visible;fontColor=black;", type:"secobjective", pname:"Security Objective"};
-    const securityMechanism = {src:projectPath+"images/models/component/file.png", wd:125, hg:50, style:"shape=secmechanism;html=1;whiteSpace=wrap;overflow=visible;fontColor=black;", type:"secmechanism", pname:"Security Mechanism"};
-    const threat = {src:projectPath+"images/models/component/file.png", wd:100, hg:100, style:"shape=threat;html=1;whiteSpace=wrap;overflow=visible;fontColor=black;", type:"threat", pname:"Threat"};
-    const attack = {src:projectPath+"images/models/component/file.png", wd:100, hg:100, style:"shape=attack;html=1;whiteSpace=wrap;overflow=visible;fontColor=black;", type:"attack", pname:"Attack"};
-    const vulnerability = {src:projectPath+"images/models/component/file.png", wd:125, hg:50, style:"shape=vulnerability;html=1;whiteSpace=wrap;overflow=visible;fontColor=black;", type:"vulnerability", pname:"Vulnerability"};
-    */
+    //tests
+    const securityConstraint = {src:projectPath+"images/models/istar/sconstraint.png", wd:100, hg:100, style:"shape=secconstraint;html=1;whiteSpace=wrap;overflow=visible;fontColor=black;", type:"secconstraint", pname:"Security Constraint"};
+    const securityObjective = {src:projectPath+"images/models/istar/sobjective.png", wd:100, hg:100, style:"shape=secobjective;html=1;whiteSpace=wrap;overflow=visible;fontColor=black;", type:"secobjective", pname:"Security Objective"};
+    const securityMechanism = {src:projectPath+"images/models/istar/smechanism.png", wd:125, hg:50, style:"shape=secmechanism;html=1;whiteSpace=wrap;overflow=visible;fontColor=black;", type:"secmechanism", pname:"Security Mechanism"};
+    const threat = {src:projectPath+"images/models/istar/threat.png", wd:100, hg:100, style:"shape=threat;html=1;whiteSpace=wrap;overflow=visible;fontColor=black;", type:"threat", pname:"Threat"};
+    const attack = {src:projectPath+"images/models/istar/attack.png", wd:100, hg:100, style:"shape=attack;html=1;whiteSpace=wrap;overflow=visible;fontColor=black;", type:"attack", pname:"Attack"};
+    const vulnerability = {src:projectPath+"images/models/istar/vulnerability.png", wd:125, hg:50, style:"shape=vulnerability;html=1;whiteSpace=wrap;overflow=visible;fontColor=black;", type:"vulnerability", pname:"Vulnerability"};
+    
+    const organization = {src:projectPath+"images/models/component/file.png", wd:250, hg:250, style:"shape=rectangle;fillColor=none;dashed=1;dashPattern=10 10;rounded=1;arcSize=15;verticalAlign=top;fontColor=black;fontSize=20;fontStyle=1;", type:"organization", pname:"Organization"}
 
 		let elements=[];
 		elements.push(actor);
@@ -163,15 +304,16 @@ let istar_main = function istar_main(graph)
     elements.push(task);
     elements.push(resource);
 
-    /*
+    
     //tests
     elements.push(securityConstraint);
     elements.push(securityObjective);
     elements.push(securityMechanism);
     elements.push(threat);
     elements.push(attack);
-    elements.push(vulnerability)
-    */
+    elements.push(vulnerability);
+    
+    elements.push(organization);
    
 		return elements;
 	}
@@ -197,6 +339,7 @@ let istar_main = function istar_main(graph)
 
   function istar_relations(){
     let relations=[];
+    //Actor relations
     relations.push({
       "source":["actor","agent","role"],
       "rel_source_target":"and",
@@ -206,24 +349,6 @@ let istar_main = function istar_main(graph)
         "def_value":"participates-in"
       }]
     });
-    /* relations[1]={
-      "source":["actor","agent","role"],
-      "rel_source_target":"and",
-      "target":["goal-dependum","quality-dependum","task-dependum","resource-dependum"],
-      "attributes":[{
-        "name":"relType",
-        "def_value":"D"
-      }]
-    };
-    relations[2]={
-      "source":["goal-dependum","quality-dependum","task-dependum","resource-dependum"],
-      "rel_source_target":"and",
-      "target":["actor","agent","role"],
-      "attributes":[{
-        "name":"relType",
-        "def_value":"D"
-      }]
-    }; */
     //Contribution
     relations.push({
       "source":["goal","quality","task","resource"],
@@ -244,13 +369,76 @@ let istar_main = function istar_main(graph)
         "def_value":"and"
       }]
     });
-    //Qualification
-    /* relations[5]={
-      "source":["quality"],
+    //Restriction
+    relations.push({
+      "source":["secconstraint"],
+      "rel_source_target":"and",
+      "target":["goal"],
+      "attributes":[{
+        "name":"relType",
+        "def_value":"restricts"
+      }]
+    });
+    //Security Objective -> Security Constraint "Satisfies"
+    relations.push({
+      "source":["secobjective"],
+      "rel_source_target":"and",
+      "target":["secconstraint"],
+      "attributes":[{
+        "name":"relType",
+        "def_value":"satisfies"
+      }]
+    });
+    //Security Mechanism -> Security Objective "Implements"
+    relations.push({
+      "source":["secmechanism"],
+      "rel_source_target":"and",
+      "target":["secobjective"],
+      "attributes":[{
+        "name":"relType",
+        "def_value":"implements"
+      }]
+    });
+    //Security Mechanism -> Vulnerability "Protects"
+    relations.push({
+      "source":["secmechanism"],
+      "rel_source_target":"and",
+      "target":["vulnerability"],
+      "attributes":[{
+        "name":"relType",
+        "def_value":"protects"
+      }]
+    });
+    //Threat -> Goal "Impacts"
+    relations.push({
+      "source":["threat"],
       "rel_source_target":"and",
       "target":["goal","quality","task","resource"],
-      "style":"dashed=1;endArrow=none;"
-    }; */
+      "attributes":[{
+        "name":"relType",
+        "def_value":"impacts"
+      }]
+    });
+    //Vulnerability -> Goal "Affects"
+    relations.push({
+      "source":["vulnerability"],
+      "rel_source_target":"and",
+      "target":["goal","quality","task","resource"],
+      "attributes":[{
+        "name":"relType",
+        "def_value":"affects"
+      }]
+    });
+    //Attack -> Vulnerability "Attacks"
+    relations.push({
+      "source":["attack"],
+      "rel_source_target":"and",
+      "target":["vulnerability"],
+      "attributes":[{
+        "name":"relType",
+        "def_value":"attacks"
+      }]
+    });
     return relations
   }
 
@@ -304,13 +492,76 @@ let istar_main = function istar_main(graph)
       "target":["task"],
       "style":"endArrow=oval;endFill=1;"
     });
-    //Restricts
+    //Security Constraint -> Goal "Restricts"
     relations.push({
       "source":["secconstraint"],
       "rel_source_target":"and",
       "target":["goal"],
       "style":"endArrow=none;"
     })
+    //Security Objective -> Security Constraint "satisfies"
+    relations.push({
+      "source":["secobjective"],
+      "rel_source_target":"and",
+      "target":["secconstraint"],
+      "style":"endArrow=none;"
+    })
+    //Security Mechanism -> Security Objective "Implements"
+    relations.push({
+      "source":["secmechanism"],
+      "rel_source_target":"and",
+      "target":["secobjective"],
+      "style":"endArrow=none;"
+    });
+    //Security Mechanism -> Vulnerability "Protects"
+    relations.push({
+      "source":["secmechanism"],
+      "rel_source_target":"and",
+      "target":["vulnerability"],
+      "style":"endArrow=none;"
+    });
+    //Threat -> Goal "Impacts"
+    relations.push({
+      "source":["threat"],
+      "rel_source_target":"and",
+      "target":["goal","task","resource","quality"],
+      "style":"dashed=1;endArrow=open;"
+    });
+    //Vulnerability -> Goal "Affects"
+    relations.push({
+      "source":["vulnerability"],
+      "rel_source_target":"and",
+      "target":["goal","quality","task","resource"],
+      "style":"endArrow=none;"
+    });
+    //Attack -> Vulnerability "Attacks"
+    relations.push({
+      "source":["attack"],
+      "rel_source_target":"and",
+      "target":["vulnerability"],
+      "style":"dashed=1;endArrow=none;"
+    });
+    //Threat -> Attack
+    relations.push({
+      "source":["threat"],
+      "rel_source_target":"and",
+      "target":["attack"],
+      "style":"endArrow=block;"
+    });
+    //Goal-D, Resource-D, Task-D, Quality-D -> Security Constraint
+    relations.push({
+      "source":["goal-dependum","quality-dependum","task-dependum","resource-dependum","goal","quality","task","resource","actor","agent","role"],
+      "rel_source_target":"and",
+      "target":["secconstraint-dependum"],
+      "style":"endArrow=none;"
+    });
+    //Security Constraint -> Goal, Resource, Task, Quality, Actor, Resource, Role
+    relations.push({
+      "source":["secconstraint-dependum"],
+      "rel_source_target":"and",
+      "target":["goal","quality","task","resource","goal-dependum","quality-dependum","task-dependum","resource-dependum","actor","agent","role"],
+      "style":"endArrow=none;"
+    });
     return relations;
   }
   
@@ -338,27 +589,6 @@ let istar_main = function istar_main(graph)
         "input_type": "select",
         "input_values":["participates-in"]
       }],
-      //Actor Dependum Links
-      /* "rel_actor_goal-dependum":[{
-        "attribute": "relType",
-        "input_type": "select",
-        "input_values":["D"]
-      }],
-      "rel_actor_quality-dependum":[{
-        "attribute": "relType",
-        "input_type": "select",
-        "input_values":["D"]
-      }],
-      "rel_actor_task-dependum":[{
-        "attribute": "relType",
-        "input_type": "select",
-        "input_values":["D"]
-      }],
-      "rel_actor_resource-dependum":[{
-        "attribute": "relType",
-        "input_type": "select",
-        "input_values":["D"]
-      }], */
       //Agent
       "agent":[{
         "attribute":"boundary",
@@ -381,27 +611,6 @@ let istar_main = function istar_main(graph)
         "input_type": "select",
         "input_values":["participates-in"]
       }],
-      //Agent Dependum Links
-      /* "rel_agent_goal-dependum":[{
-        "attribute": "relType",
-        "input_type": "select",
-        "input_values":["D"]
-      }],
-      "rel_agent_quality-dependum":[{
-        "attribute": "relType",
-        "input_type": "select",
-        "input_values":["D"]
-      }],
-      "rel_agent_task-dependum":[{
-        "attribute": "relType",
-        "input_type": "select",
-        "input_values":["D"]
-      }],
-      "rel_agent_resource-dependum":[{
-        "attribute": "relType",
-        "input_type": "select",
-        "input_values":["D"]
-      }], */
       //Role
       "role":[{
         "attribute":"boundary",
@@ -424,47 +633,6 @@ let istar_main = function istar_main(graph)
         "input_type": "select",
         "input_values":["participates-in","is-a"]
       }],
-      //Agent Dependum Links
-      /* "rel_role_goal-dependum":[{
-        "attribute": "relType",
-        "input_type": "select",
-        "input_values":["D"]
-      }],
-      "rel_role_quality-dependum":[{
-        "attribute": "relType",
-        "input_type": "select",
-        "input_values":["D"]
-      }],
-      "rel_role_task-dependum":[{
-        "attribute": "relType",
-        "input_type": "select",
-        "input_values":["D"]
-      }],
-      "rel_role_resource-dependum":[{
-        "attribute": "relType",
-        "input_type": "select",
-        "input_values":["D"]
-      }], */
-      /* //Goal
-      "goal":[{
-        "attribute":"dependum",
-        "input_type":"checkbox",
-      }],
-      //Quality
-      "quality":[{
-        "attribute":"dependum",
-        "input_type":"checkbox",
-      }],
-      //Task
-      "task":[{
-        "attribute":"dependum",
-        "input_type":"checkbox",
-      }],
-      //Resource
-      "resource":[{
-        "attribute":"dependum",
-        "input_type":"checkbox",
-      }], */
       //Contribution relations
       "rel_goal_quality":[{
         "attribute":"relType",
@@ -510,14 +678,56 @@ let istar_main = function istar_main(graph)
         "input_type":"select",
         "input_values":["and","or"],
         "onchange":refinementStyle
-      }] 
+      }], 
+      //Security Constraint -> Goal
+      "rel_secconstraint_goal":[{
+        "attribute":"relType",
+        "input_type":"select",
+        "input_values":["restricts"]
+      }],
+      //Security Objective -> Security Constraint
+      "rel_secobjective_secconstraint":[{
+        "attribute":"relType",
+        "input_type":"select",
+        "input_values":["satisfies"]
+      }],
+      //Security Mechanism -> Security Objective "Implements"
+      "rel_secmechanism_secobjective":[{
+        "attribute":"relType",
+        "input_type":"select",
+        "input_values":["implements"]
+      }],
+      //Security Mechanism -> Vulnerability "Protects"
+      "rel_secmechanism_vulnerability":[{
+        "attribute":"relType",
+        "input_type":"select",
+        "input_values":["protects"]
+      }],
+      //Threat -> Goal "Impacts"
+      "rel_threat_goal":[{
+        "attribute":"relType",
+        "input_type":"select",
+        "input_values":["impacts"]
+      }],
+      //Vulnerability -> Goal "Affects"
+      "rel_vulnerability_goal":[{
+        "attribute":"relType",
+        "input_type":"select",
+        "input_values":["affects"]
+      }],
+      //Attack -> Vulnerability "Attacks"
+      "rel_attack_vulnerability":[{
+        "attribute":"relType",
+        "input_type":"select",
+        "input_values":["attacks"]
+      }],
     }
   }
 
   function istar_custom_methods(pos){
 		let methods=[]
 		methods.push(function(_prototype, cell){
-      if(cell !== null){
+      if(cell !== null && cell.getAttribute('type') !== "organization"){
         alert("you may not add actor within another\'s boundary")
         return false;
       }
@@ -618,7 +828,7 @@ let istar_main = function istar_main(graph)
                 console.log('sourceCell :', sourceCell);
                 console.log('targetCell :', targetCell);
                 const newEdge = graph.insertEdge(boundaryCell, uuidv1(), edge.value, sourceCell, targetCell, edge.style);
-                if(newEdge.getAttribute('type').includes('dependum')){
+                if(newEdge.getAttribute('type').includes('dependum') || edge.children !== null){
                   //Gather the state information of both the source and target elements.
                   const sourceState = graph.view.getState(sourceCell);
                   const sourceGeo = sourceCell.getGeometry();
@@ -633,13 +843,17 @@ let istar_main = function istar_main(graph)
                   //Calculate the angle given by the edge in its current orientation.
                   const angle = (Math.atan2(destY-initY,destX-initX) * (180/Math.PI)).toFixed(0);
                   //Insert a new element onto the the edge with the calculated angle.
-                  const capitald = graph.insertVertex(newEdge,uuidv1(),null,0,0,20,20,'shape=capitald;fillColor=#FFFFFF;rotation='+angle+';');
+                  const childPresent = (edge.children !== null);
+                  const style = childPresent ? edge.children[0].getStyle() : 'shape=capitald;fillColor=#FFFFFF;rotation='+angle+';selectable=0;';
+                  const {height: edgeChildGeoX, width: edgeChildGeoY} = childPresent ? edge.children[0].getGeometry() : {height: 20, width: 20};
+                  const capitald = graph.insertVertex(newEdge,uuidv1(),null,0,0, edgeChildGeoX, edgeChildGeoY, style);
                   //Set the offset of the element so that it is centered. 
-                  capitald.geometry.offset = new mxPoint(-10, -10);
+                  capitald.geometry.offset = childPresent ? edge.children[0].getGeometry().offset : new mxPoint(-10, -10);
                   capitald.geometry.relative = true;
                   //Set the element as unconnectable.
                   capitald.connectable = false;
                 }
+                newEdge.setGeometry(edge.geo);
                 done.push({t1:sourceCell.getId(),t2:targetCell.getId()});
               }
             })
@@ -673,7 +887,10 @@ let istar_main = function istar_main(graph)
                   const isSource = source === child.getId();
                   const target = edge.getTerminal(false).getId();
                   const style = edge.getStyle();
-                  innerEdges.push({value, isSource, source, target, style});
+                  const type = edge.getAttribute('type');
+                  const children = edge.getChildCount() > 0 ? [...edge.children] : null;
+                  const geo = edge.getGeometry();
+                  innerEdges.push({value, isSource, source, target, style, type, children, geo});
                 }
               }
               //Now we map every id to its corresponding cell and edges so that we can reconstruct it later.
@@ -704,13 +921,17 @@ let istar_main = function istar_main(graph)
                 const destY = targetState.y + (targetState.height/2);
                 //Calculate the angle given by the edge in its current orientation.
                 const angle = (Math.atan2(destY-initY,destX-initX) * (180/Math.PI)).toFixed(0);
+                //Determine the element that will be added over the edge.
+                const affects = ['rel_attack_vulnerability'].includes(edge.type);
                 //Insert a new element onto the the edge with the calculated angle.
-                const capitald = graph.insertVertex(newEdge,uuidv1(),null,0,0,20,20,'shape=capitald;fillColor=#FFFFFF;rotation='+angle+';');
+                const capitald = graph.insertVertex(newEdge,uuidv1(),null,0,0,20,20,'shape='+(affects ? 'affects':'capitald')+';fillColor=#FFFFFF;rotation='+angle+';selectable=0;');
                 //Set the offset of the element so that it is centered. 
                 capitald.geometry.offset = new mxPoint(-10, -10);
                 capitald.geometry.relative = true;
                 //Set the element as unconnectable.
                 capitald.connectable = false;
+                //Set edge geometry to get text label out of the way
+                newEdge.setGeometry(edge.geo);
               }
             })
           }
@@ -765,7 +986,7 @@ let istar_main = function istar_main(graph)
     //this.value should carry the value that has been changed to
     graph.getModel().beginUpdate();
     try {
-      if (target.edges.length > 1){
+      if (target.edges.length > 0){
         target.edges.forEach(edge => {
           const source = edge.getTerminal(true);
           const sourceType = source.getAttribute('type');
@@ -793,6 +1014,7 @@ let istar_main = function istar_main(graph)
    * @param {Object} _sender This is the graph that generated the event.
    * @param {Object} evt This is the event itself, it contains all the parameters of the associated MOVED_CELLS event.
    */
+  // TODO: CHECK CORRECTNESS
   function reorientElement(_sender, evt) {
     //Obtain the moved cells.
     const cells = evt.getProperty('cells');
@@ -820,7 +1042,7 @@ let istar_main = function istar_main(graph)
         if(element.getEdgeCount() > 0){
           element.edges.forEach(edge => {
             //Check if the edge is a connection to a dependum element, otherwise ignore it.
-            if(edge.getAttribute('type').includes('dependum') && edge.getChildCount() > 0){
+            if(/*edge.getAttribute('type').includes('dependum') && edge.getChildCount() > 0*/ edge.getChildCount() > 0){
               //These are the coordinates that will be used to calculate the angle to which
               //the marker will be rotated to. init for the source, dest for the target.
               let initX, initY, destX, destY;
@@ -833,7 +1055,7 @@ let istar_main = function istar_main(graph)
               const sourceParentGeo = sourceParent.getGeometry();
               const sourceParentValue = sourceParent.getValue();
               //Check if the cell is inside a boudary.
-              if(sourceParentValue !== undefined && sourceParentValue.type !== undefined && sourceParentValue.type  === 'boundary'){
+              if(sourceParentValue !== undefined && ((sourceParentValue.type !== undefined && sourceParentValue.type  === 'boundary') || sourceParent.getAttribute('type') === 'organization')){
                 //If the cell is inside a boudary, its position is then given by the 
                 //position of the boundary + its offset + the center of its bounding rectangle.
                 //The state allows us to calculate the current size of the element and
@@ -853,7 +1075,7 @@ let istar_main = function istar_main(graph)
               const targetParentGeo = targetParent.getGeometry();
               const targetParentValue = targetParent.getValue();
               //Check if the target cell is inside a boudary.
-              if(targetParentValue !== undefined && targetParentValue.type !== undefined && targetParentValue.type  === 'boundary'){
+              if(targetParentValue !== undefined && ((targetParentValue.type !== undefined && targetParentValue.type  === 'boundary') || targetParent.getAttribute('type') === 'organization')){
                 //Same as above...
                 //const targetStateShape = graph.view.getState(target);
                 destX = targetParentGeo.x + targetGeo.x + (targetGeo.width/2);
