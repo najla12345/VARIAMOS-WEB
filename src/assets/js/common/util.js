@@ -18,8 +18,18 @@ export function setupModal(header_content,body_content="",footer_content="")
     main_modal.style.display="inline-table";
 
     main_modal_header.appendChild(header_content);
-    if(body_content!=""){main_modal_body.appendChild(body_content);}
-    if(footer_content!=""){main_modal_footer.appendChild(footer_content);}
+    if(body_content!=""){
+        main_modal_body.appendChild(body_content);
+    }
+    if(footer_content!=""){
+        if(Array.isArray(footer_content)){
+            footer_content.forEach(footer_element => {
+                main_modal_footer.appendChild(footer_element);
+            });
+        } else {
+            main_modal_footer.appendChild(footer_content);
+        }
+    }
 }
 
 export function modalH3(text,type="normal"){
@@ -61,61 +71,62 @@ export function modalInputTexts(texts,inputs,default_vals){
     return table;
 }
 
-export function modalComponentInformation(structure){
+export function modalComponentInformation(structure, idx_cat, idx_subcat){
     let table = document.createElement('table');
-    Object.keys(structure).forEach(function(key_category,index) {
-        // key: the name of the object key
-        // index: the ordinal position of the key within the object
-        const subcategory = structure[key_category];
-        Object.keys(subcategory).forEach(function(key_subcategory,index) {
-            subcategory[key_subcategory].forEach(element => {
-                let tr = document.createElement('tr');
-                let td = document.createElement('td');
-                td.innerHTML=element.element_id;
-                tr.appendChild(td);
+    const category_keys = Object.keys(structure);
+    const subcategory_keys = Object.keys(structure[category_keys[idx_cat]]);
+    const elements = structure[category_keys[idx_cat]][subcategory_keys[idx_subcat]];
 
-                let input = null;
+    elements.forEach(element => {
+        let tr = document.createElement('tr');
+        let td = document.createElement('td');
+        td.innerHTML=element.element_id;
+        tr.appendChild(td);
 
-                if(element.element_type === 'label'){
-                    /* input = document.createElement('Label');
-                    input.innerHTML = ''; */
-                }
-                else if(element.element_type === 'text'){
-                    input = document.createElement('input');
-                    input.size=48;
-                }
-                else if(element.element_type === 'combo'){
-                    input = document.createElement("select");
-                    let index = 0;
-                    element.element_items.forEach(optionText => {
-                        const option = document.createElement('option');
-                        option.value = index++;
-                        option.text = optionText;
-                        input.appendChild(option);
-                    });
-                }else{
-                    alert("A problem occurred");
-                }
+        let input = null;
 
-                let td2 = document.createElement('td');
-                if(input !== null){
-                    input.addEventListener('input', function(){
-                        element.value = input.value;
-                    });
-                    if(element.value !== undefined && element.value !== null){
-                        if(element.element_type === 'combo'){
-                            input.selectedIndex = element.value;
-                        } else {
-                            input.value = element.value;
-                            input.innerHTML = element.value;
-                        }
-                    }
-                    td2.appendChild(input);
-                }
-                tr.appendChild(td2);
-                table.appendChild(tr);
+        if(element.element_type === 'label'){
+            input = document.createElement('th');
+            input.innerHTML = element.element_txt !== undefined ? element.element_txt.bold() : '';
+            input.setAttribute('align', 'center');
+        }
+        else if(element.element_type === 'text'){
+            input = document.createElement('input');
+            input.size=48;
+        }
+        else if(element.element_type === 'combo'){
+            input = document.createElement('select');
+            let index = 0;
+            element.element_items.forEach(optionText => {
+                const option = document.createElement('option');
+                option.value = index++;
+                option.text = optionText;
+                input.appendChild(option);
             });
-        });
+        } else if(element.element_type === 'textarea'){
+            input = document.createElement('textarea');
+            input.cols = 50;
+        } else {
+            alert("A problem occurred");
+        }
+
+        let td2 = document.createElement('td');
+        if(input !== null){
+            input.addEventListener('input', function(){
+                element.value = input.value;
+            });
+            if(element.value !== undefined && element.value !== null){
+                if(element.element_type === 'combo'){
+                    input.selectedIndex = element.value;
+                } else {
+                    input.value = element.value;
+                    input.innerHTML = element.value;
+                }
+            }
+            td2.appendChild(input);
+        }
+        tr.appendChild(td2);
+        table.appendChild(tr);
     });
     return table;
 }
@@ -162,11 +173,11 @@ export function modalCustomization(texts,inputs,default_vals){
 }
 
 export function modalButton(text,function_to_append){
-    let button = document.createElement('button');
-    button.innerText=text;
-    button.id=text;
-    button.addEventListener("click", function_to_append, false);
-    return button;
+        let button = document.createElement('button');
+        button.innerText=text;
+        button.id=text;
+        button.addEventListener("click", function_to_append, false);
+        return button;
 }
  
 export function downloadFile(filename, text) {
@@ -177,7 +188,7 @@ export function downloadFile(filename, text) {
     document.body.appendChild(element); 
     element.click(); 
     document.body.removeChild(element);
-  }
+}
 
 /* end util */
 
