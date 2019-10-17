@@ -179,6 +179,7 @@ export default{
       let graphContainer = document.getElementById('graphContainer');
       main(this.graph,this.layers,this.mxModel,this.toolbar,this.keyHandler,graphContainer,this.modelType,this.currentModel,counter,this.setupFunctions,this.undoManager, this.$route.params, this.$store);
       let outline = new mxOutline(this.graph, document.getElementById('navigator'));
+      this.graph.currentVueInstance = this;
 		  outline.refresh();
     },
     hide_menu_options(domain_childs){
@@ -364,6 +365,9 @@ export default{
 table{
 	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
   font-size: 14px;
+ overflow-block: scroll;
+  overflow-x: auto;
+  overflow-y: auto;
 }
 
 .properties-table td{

@@ -234,6 +234,7 @@ export default {
   transition: all .3s ease;
   margin: 0 auto;
   padding: 20px 30px;
+  overflow: 'auto';
 }
 .modal-footer {
   margin-top: 15px;
@@ -244,6 +245,7 @@ export default {
 .modal-enter .modal-container, .modal-leave .modal-container {
   -webkit-transform: scale(1.1);
   transform: scale(1.1);
+    overflow: 'auto';
 }
 
 </style>
