@@ -80,12 +80,13 @@ let setup_elements = function setup_elements(graph, elements, custom_attributes,
                         graph.setCellStyles(mxConstants.STYLE_MOVABLE, '0', [Lane_name])
                     
                     }
-                    if(["GatewayAND"].includes(type)){
+                    /* if(["GatewayAND"].includes(type)){
                         console.log("Gateway")
                         const g = element.getGeometry();
                         g.offset = new mxPoint(100,15);
                         g.relative = false;
-                    }
+                        element.setGeometry(g);
+                    } */
                   graph.setSelectionCells(new_cells);
                 });
 

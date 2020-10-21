@@ -194,7 +194,7 @@ let setup_properties = function setup_properties(graph,properties_styles){
 							input.setAttribute('align', 'left');
 							input.setAttribute("id","input"+comp);
 							input.setAttribute("value","null");
-                            td=input;
+							td=input;
 							tr.appendChild(td);
 							//if(cell.getAttribute(tc.element_id))
 							
@@ -208,7 +208,12 @@ let setup_properties = function setup_properties(graph,properties_styles){
                             {
                             let input = document.createElement('input');
                             //tabH3.innerText = tc.element_id;
-                            td2.appendChild(input);
+							td2.appendChild(input);
+							const propVal = cell.getAttribute(tc.element_id, '');
+							if(propVal !== ''){
+								input.value = propVal;
+							}
+							addHandlerTest(graph, input, cell, tc.element_id, {});
 						
 						tr.appendChild(td2);}
 						else if(tc.element_type=="textarea")
@@ -279,7 +284,7 @@ let setup_properties = function setup_properties(graph,properties_styles){
 						
 						tabContent.forEach(tc => {
 							if(tc.element_id !== 'type'){
-								cell.setAttribute(tc.element_id,"");
+								//cell.setAttribute(tc.element_id,"");
 							}
 						}
 						);}
@@ -454,6 +459,92 @@ let setup_properties = function setup_properties(graph,properties_styles){
 
 	}
 
+	function addHandlerTest(graph, input, cell, attribute, custom){
+		const applyHandlerTest = function(){
+			console.log("Apply FocusoutTTT");
+			let newValue = "";
+
+			if(input.type=="checkbox"){
+				newValue = "false";
+				if(input.checked){
+					newValue = "true";
+				}
+			}else{
+				newValue = input.value || '';
+			}
+
+			let oldValue = cell.getAttribute(attribute.nodeName, '');
+			let onchange_allowed = true;
+
+			//check custom changes that are not allowed
+			if(custom["onchangerestrictive"]!=null){
+				onchange_allowed = custom["onchangerestrictive"]();
+				if(!onchange_allowed){
+					input.value=oldValue;
+				}
+			}
+
+			if (newValue != oldValue && onchange_allowed)
+			{
+				graph.getModel().beginUpdate();
+				
+				try
+				{
+					let clon = graph.getModel().getCell("clon"+cell.getId());
+					if(cell.hasAttribute(attribute)){
+						let edit = new mxCellAttributeChange(
+								cell, attribute,
+								newValue);
+						graph.getModel().execute(edit);
+						
+						//update cloned cell if exists
+						if(clon){
+							let edit2 = new mxCellAttributeChange(
+								clon, attribute,
+								newValue);
+							graph.getModel().execute(edit2);
+						}
+					} else {
+						cell.setAttribute(attribute, newValue);
+						if(clon){
+							clon.setAttribute(attribute, newValue);
+						}
+					}
+						
+				}
+				finally
+				{
+					graph.getModel().endUpdate();
+				}
+			}
+		}
+
+		mxEvent.addListener(input, 'keypress', function (evt)
+		{
+			// Needs to take shift into account for textareas
+			if (evt.keyCode == /*enter*/13 &&
+				!mxEvent.isShiftDown(evt))
+			{
+				input.blur();
+			}
+		});
+
+		if (mxClient.IS_IE)
+		{
+			mxEvent.addListener(input, 'focusout', applyHandlerTest);
+		}
+		else
+		{
+			// Note: Known problem is the blurring of fields in
+			// Firefox by changing the selection, in which case
+			// no event is fired in FF and the change is lost.
+			// As a workaround you should use a local variable
+			// that stores the focused field and invoke blur
+			// explicitely where we do the graph.focus above.
+			mxEvent.addListener(input, 'blur', applyHandlerTest);
+		}
+	}
+
 	function executeApplyHandler(graph, form, cell, attribute, input, custom){
 
 		//apply custom configurations
@@ -461,6 +552,7 @@ let setup_properties = function setup_properties(graph,properties_styles){
 
 		let applyHandler = function()
 		{
+			console.log("Apply Focusout");
 			let newValue = "";
 
 			if(input.type=="checkbox"){

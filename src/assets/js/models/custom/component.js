@@ -66,6 +66,7 @@ let componentMain = function componentMain(graph)
 		
 		return elements;
 	} */
+		return elements;
 	}
 
 	function componentAttributes(){

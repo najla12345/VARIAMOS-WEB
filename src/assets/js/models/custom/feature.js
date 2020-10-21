@@ -96,7 +96,7 @@ let featureMain = function featureMain(graph)
 			"concrete":[{
 					"attribute":"selected",
 					"input_type":"checkbox",
-					"onchange": feature_custom_methods(3)
+					"onchange": featureCustomMethods(3)
 				},
 				{"attribute":"critical",
 				"input_type":"select",

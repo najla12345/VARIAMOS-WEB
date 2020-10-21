@@ -34,6 +34,7 @@ var bpmn_main = function bpmn_main(graph)
 
     function bpmn_elements(){
         const textOpts = 'overflow=visible;whiteSpace=wrap;html=1;';
+        const offsetLabelOpts = 'verticalLabelPosition=top;verticalAlign=bottom;';
         var component = {src:projectPath+"images/models/component/component.png", wd:100, hg:40, style:"shape=component", type:"component", pname:"Component"};
         var end = {src:projectPath+"images/models/bpmn/end.PNG", wd:100, hg:40, style:"shape=GeneralEnd", type:"GeneralEnd", pname:"GeneralEnd"};
         var task = {src:projectPath+"images/models/bpmn/task.PNG", wd:125, hg:50, style:"shape=Task;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"Task", pname:"Task"};
@@ -94,7 +95,12 @@ var bpmn_main = function bpmn_main(graph)
         elements[25]=base;
         elements[26]=variant;
         elements[27]=variantTask;
-        elements.forEach(elem => {elem.style += textOpts});
+        elements.forEach(elem => {
+          elem.style += textOpts
+          if(["Gateway", "GatewayAND", "GatewayEvent", "GatewayCOMPLEX"].includes(elem.pname)){
+            elem.style += offsetLabelOpts;
+          }
+        });
         return elements;
     }
  
