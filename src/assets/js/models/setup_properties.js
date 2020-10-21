@@ -1,19 +1,17 @@
-let setup_properties = function setup_properties(graph,properties_styles){
+let setupProperties = function setupProperties(graph, propertiesStyles){
 	//remove previous listeners
-	if(graph.getSelectionModel().eventListeners.length>3){
+	if(graph.getSelectionModel().eventListeners.length > 3){
 		graph.getSelectionModel().eventListeners.pop();
 		graph.getSelectionModel().eventListeners.pop();
 	}
 
-    graph.getSelectionModel().addListener(mxEvent.CHANGE, function(sender, evt)
-    {
-        selectionChanged(graph,properties_styles);
+    graph.getSelectionModel().addListener(mxEvent.CHANGE, function(sender, evt){
+        selectionChanged(graph, propertiesStyles);
 	});
 
-    selectionChanged(graph,properties_styles);
+    selectionChanged(graph, propertiesStyles);
 
-    function selectionChanged(graph,properties_styles)
-	{
+    function selectionChanged(graph, propertiesStyles){
 		let div = document.getElementById('properties');
 		// Forces focusout in IE
 		graph.container.focus();
@@ -22,12 +20,10 @@ let setup_properties = function setup_properties(graph,properties_styles){
 		// Gets the selection cell
 		let cell = graph.getSelectionCell();
 		
-		if (cell == null)
-		{
+		if (cell == null){
 			mxUtils.writeln(div, global.messages["setup_properties_nothing"]);
 		}
-		else
-		{
+		else{
 			if(cell.getId().includes("clon")){
 				mxUtils.writeln(div, global.messages["setup_properties_clon"]);
 			}else{
@@ -35,22 +31,26 @@ let setup_properties = function setup_properties(graph,properties_styles){
 					let form = new mxForm("properties-table");
 					let attrs = cell.value.attributes;
 					
-					for (let i = 0; i < attrs.length; i++)
-					{
-						if(properties_styles!=null && properties_styles[cell.getAttribute("type")]){
+					for (let i = 0; i < attrs.length; i++){
+						if(propertiesStyles!=null && propertiesStyles[cell.getAttribute("type")]){
 							let type = cell.getAttribute("type");
 							let passed = false;
-							for (let j = 0; j < properties_styles[type].length; j++)
+							for (let j = 0; j < propertiesStyles[type].length; j++)
 							{
-								if(properties_styles[type][j]["attribute"]==attrs[i].nodeName){
-									if(properties_styles[type][j]["input_type"]=="text"){
-										createTextField(graph, form, cell, attrs[i], properties_styles[type][j]);
+								if(propertiesStyles[type][j]["attribute"] == attrs[i].nodeName){
+									if(propertiesStyles[type][j]["input_type"] == "text"){
+										createTextField(graph, form, cell, attrs[i], propertiesStyles[type][j]);
 										passed = true;
-									}else if(properties_styles[type][j]["input_type"]=="select"){
-										createSelectField(graph, form, cell, attrs[i], properties_styles[type][j]);
+									}else if(propertiesStyles[type][j]["input_type"] == "select"){
+										createSelectField(graph, form, cell, attrs[i], propertiesStyles[type][j]);
 										passed = true;
-									}else if(properties_styles[type][j]["input_type"]=="checkbox"){
-										createCheckboxField(graph, form, cell, attrs[i], properties_styles[type][j]);
+									}else if(propertiesStyles[type][j]["input_type"] == "checkbox"){
+										createCheckboxField(graph, form, cell, attrs[i], propertiesStyles[type][j]);
+										passed = true;
+									}else if(propertiesStyles[type][j]["input_type"] == "disabled"){
+										createTextField(graph, form, cell, attrs[i], propertiesStyles[type][j], true);
+										passed = true;
+									}else if(propertiesStyles[type][j]["input_type"] == "none"){ 
 										passed = true;
 									}
 								}
@@ -74,9 +74,8 @@ let setup_properties = function setup_properties(graph,properties_styles){
 	 * Creates the checkbox field for the given property.
 	 */
 	function createCheckboxField(graph, form, cell, attribute, custom){
-
-		let def_display = getDisplayValue(cell,custom);
-		let input = form.addCheckbox(attribute.nodeName, attribute.nodeValue, def_display);
+		let defDisplay = getDisplayValue(cell,custom);
+		let input = form.addCheckbox(attribute.nodeName, attribute.nodeValue, defDisplay);
 
 		executeApplyHandler(graph, form, cell, attribute, input, custom);
 	}
@@ -85,17 +84,15 @@ let setup_properties = function setup_properties(graph,properties_styles){
 	 * Creates the select field for the given property.
 	 */
 	function createSelectField(graph, form, cell, attribute, custom){
+		let values = custom["input_values"];
+		let defDisplay = getDisplayValue(cell, custom);
+		let input = form.addCombo(attribute.nodeName, false, 1, defDisplay);
 
-		let values=custom["input_values"];
-		let def_display = getDisplayValue(cell,custom);
-		let input = form.addCombo(attribute.nodeName, false, 1, def_display);
-
-		for (let i = 0; i < values.length; i++)
-		{
-			if(values[i]==attribute.nodeValue){
-				form.addOption(input,values[i],values[i],true);
+		for (let i = 0; i < values.length; i++){
+			if(values[i] == attribute.nodeValue){
+				form.addOption(input, values[i], values[i], true);
 			}else{
-				form.addOption(input,values[i],values[i],false);
+				form.addOption(input, values[i], values[i], false);
 			}
 		}
 
@@ -105,28 +102,28 @@ let setup_properties = function setup_properties(graph,properties_styles){
 	/**
 	 * Creates the textfield for the given property.
 	 */
-	function createTextField(graph, form, cell, attribute, custom)
-	{
-		let def_display = getDisplayValue(cell,custom);
+	function createTextField(graph, form, cell, attribute, custom, disabled){
+		// TO FIX -> MUST BE REMOVED FROM HERE - initialize the highrange when its value is '*'
+		if(attribute.nodeName === 'highRange' && attribute.nodeValue === '*'){
+			custom['input_text_type'] = 'text';
+		}
+		let defDisplay = getDisplayValue(cell, custom);
 
-		let input = form.addText(attribute.nodeName, attribute.nodeValue, "text", def_display);
+		let input = form.addText(attribute.nodeName, attribute.nodeValue, "text", defDisplay);
 		
 		//attribute type can not be modified
-		if(attribute.nodeName=="type"){
+		if(attribute.nodeName=="type" || disabled){
 			input.disabled="disabled";
 		}
 
 		executeApplyHandler(graph, form, cell, attribute, input, custom);
-
 	}
 
 	function executeApplyHandler(graph, form, cell, attribute, input, custom){
-
 		//apply custom configurations
 		applyCustomElements(input, custom, cell);
 
-		let applyHandler = function()
-		{
+		let applyHandler = function(){
 			let newValue = "";
 
 			if(input.type=="checkbox"){
@@ -134,27 +131,29 @@ let setup_properties = function setup_properties(graph,properties_styles){
 				if(input.checked){
 					newValue = "true";
 				}
+			}
+			// TO FIX -> MUST BE REMOVED FROM HERE set newValue as '*' if input is high range and smaller than 0
+			else if(input.id === 'input-highRange' && input.value < 0){
+				newValue = '*';
 			}else{
 				newValue = input.value || '';
 			}
 
 			let oldValue = cell.getAttribute(attribute.nodeName, '');
-			let onchange_allowed = true;
+			let onChangeAllowed = true;
 
 			//check custom changes that are not allowed
-			if(custom["onchangerestrictive"]!=null){
-				onchange_allowed = custom["onchangerestrictive"]();
-				if(!onchange_allowed){
+			if(custom["onchangerestrictive"] != null){
+				onChangeAllowed = custom["onchangerestrictive"]();
+				if(!onChangeAllowed){
 					input.value=oldValue;
 				}
 			}
 
-			if (newValue != oldValue && onchange_allowed)
-			{
+			if (newValue != oldValue && onChangeAllowed){
 				graph.getModel().beginUpdate();
 				
-				try
-				{
+				try{
 					let edit = new mxCellAttributeChange(
 							cell, attribute.nodeName,
 							newValue);
@@ -169,15 +168,13 @@ let setup_properties = function setup_properties(graph,properties_styles){
 						graph.getModel().execute(edit2);
 					}
 				}
-				finally
-				{
+				finally{
 					graph.getModel().endUpdate();
 				}
 			}
 		}; 
 
-		mxEvent.addListener(input, 'keypress', function (evt)
-		{
+		mxEvent.addListener(input, 'keypress', function (evt){
 			// Needs to take shift into account for textareas
 			if (evt.keyCode == /*enter*/13 &&
 				!mxEvent.isShiftDown(evt))
@@ -186,12 +183,10 @@ let setup_properties = function setup_properties(graph,properties_styles){
 			}
 		});
 
-		if (mxClient.IS_IE)
-		{
+		if (mxClient.IS_IE){
 			mxEvent.addListener(input, 'focusout', applyHandler);
 		}
-		else
-		{
+		else{
 			// Note: Known problem is the blurring of fields in
 			// Firefox by changing the selection, in which case
 			// no event is fired in FF and the change is lost.
@@ -202,35 +197,35 @@ let setup_properties = function setup_properties(graph,properties_styles){
 		}
 	}
 
-	function getDisplayValue(cell,custom){
-		let def_display = "";
- 		if(custom!=null && custom["def_display"]!=null){
-			def_display=custom["def_display"];
+	function getDisplayValue(cell, custom){
+		let defDisplay = "";
+ 		if(custom != null && custom["def_display"] != null){
+			defDisplay = custom["def_display"];
 			if(custom["display_check_attribute"]){
-				if(custom["display_check_value"]==cell.getAttribute(custom["display_check_attribute"])){
-					def_display=custom["display_check"];
+				if(custom["display_check_value"] == cell.getAttribute(custom["display_check_attribute"])){
+					defDisplay=custom["display_check"];
 				}
 			}
 		}
 
-		return def_display;
+		return defDisplay;
 	}
 
 	function applyCustomElements(input, custom, cell){
-		if(custom!=null){
+		if(custom != null){
 			//add onchange listener
-			if(custom["onchange"]!=null){
+			if(custom["onchange"] != null){
 				input.name=cell.getId();
 				input.onchange = custom["onchange"];
 			}
 
 			//custom input type
 			if(custom["input_text_type"]){
-				let type=custom["input_text_type"];
+				let type = custom["input_text_type"];
 				input.setAttribute('type', type);
 			}
 		}
 	}
 }
 
-export default setup_properties
+export default setupProperties

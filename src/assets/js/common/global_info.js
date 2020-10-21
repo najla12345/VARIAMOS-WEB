@@ -1,37 +1,44 @@
 /**
  * return the VariaMos main model info
- * @property    {array} projFolders             - each folder should have how many models when the folder or project is generated
+ * @property {array} projFolders - each folder should have how many models when the folder or project is generated
  */
 export function getModelInfo(){
-    let info =[];
+    let info = [];
     //list of graphical models
-    info["gmodels"]=["feature","component","binding_feature_component","istar","adaptation_state","adaptation_hardware","adaptation_binding_state_hardware","control","bpmn"];
+    info["gmodels"] = ["feature", "component", "binding_feature_component", "istar", "classdiag", "adap_architecture",
+        "adaptation_hardware","adaptation_behavior_hardware","adaptation_state","adaptation_behavior_states","adaptation_behavior_transitions","control","bpmn"];
     //define feature model main info
-    info["feature"]={projFolders:["Domain"]};
+    info["feature"] = {projFolders:["Domain"], label:"Feature"};
     //define component model main info
-    info["component"]={projFolders:["Domain"]};
+    info["component"] = {projFolders:["Domain"], label:"Component"};
     //define binding model main info
-    info["binding_feature_component"]={projFolders:["Domain"]};
+    info["binding_feature_component"] = {projFolders:["Domain"], label:"Binding FeatureComponent"};
+    //define adapt_architecture model main info
+    info["adap_architecture"]={projFolders:["Domain"], label:"Adaptative Architecture"};
     //define istar model main info
-    info["istar"]={projFolders:["Domain"]};
+    info["istar"] = {projFolders:["Domain"], label:"iStar"};
     //defin bpmn model main info
-    info["bpmn"]={projFolders:["Domain"]};
+    info["bpmn"]={projFolders:["Domain"], label:"BPMN"};
+    //define class diagram model main info
+    info["classdiag"] = {projFolders:["Domain"], label:"Class Diagram"}
     //define adaptation_state model main info
-    info["adaptation_state"]={projFolders:["Application"]};
+    info["adaptation_state"]={projFolders:["Application"],label:"State"};
     //define adaptation_hardware model main info
-    info["adaptation_hardware"]={projFolders:["Application"]};
-    //define adaptation_binding_state_hardware model main info
-    info["adaptation_binding_state_hardware"]={projFolders:["Application"]};
+    info["adaptation_hardware"]={projFolders:["Application"],label:"Hardware"};
+    //define adaptation_behavior_hardware model main info
+    info["adaptation_behavior_hardware"]={projFolders:["Application"],label:"Hardware behavior"};
+    //define adaptation_behavior_states model main info
+    info["adaptation_behavior_states"]={projFolders:["Application"],label:"States behavior"};
+    //define adaptation_behavior_transitions model main info
+    info["adaptation_behavior_transitions"]={projFolders:["Application"],label:"Transitions behavior"};
     //define control model main info
-    info["control"]={projFolders:["Application"]};
- 
+    info["control"]={projFolders:["Application"],label:"Control"};
     return info;
 }
 
 // insert models according to main model info
 export function insertmodel(data, index, temp) {
-    for(let i = 0; i < getModelInfo()['gmodels'].length; i++)
-	{
+    for(let i = 0; i < getModelInfo()['gmodels'].length; i++){
 		if(getModelInfo()[getModelInfo()['gmodels'][getModelInfo()['gmodels'].length-i-1]].projFolders.includes(data[index].data.nodeName.split(' -')[0]))
 		{
             /**
@@ -43,7 +50,8 @@ export function insertmodel(data, index, temp) {
 					open: false,
 					isSelected: false,
 					level: data[index].data.level + 1,
-					nodeId: temp,
+                    nodeId: temp,
+                    nodeLabel: getModelInfo()[getModelInfo()['gmodels'][getModelInfo()['gmodels'].length-i-1]]["label"],
 					nodeName: getModelInfo()['gmodels'][getModelInfo()['gmodels'].length-i-1],
 					nodeType: 3,
 					parentId: data[index].data.nodeId,

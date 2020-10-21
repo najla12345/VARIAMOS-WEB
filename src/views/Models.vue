@@ -12,8 +12,9 @@
                       {{ $t("models_area") }} - {{ $route.params.type }} {{ $t("models_model") }}</a></li>
                       <!-- model actions -->
                       <BackEnd /> 
-                      <DomainMenu :current_graph="graph" />
-                      <ApplicationMenu :current_graph="graph" /> 
+                      <VersionControlMenu /> 
+                      <DomainMenu :current_graph="graph" :model_type="modelType" />
+                      <ApplicationMenu :current_graph="graph" :model_type="modelType" /> 
                       <Verification :current_graph="graph" /> 
                     </ul>
                   </div>
@@ -25,6 +26,7 @@
                     <div class="button-unique" id="buttonUNDO"></div>
                     <div class="button-unique" id="buttonREDO"></div>
                     <div class="button-unique" id="buttonSHOW"></div>
+                    <div class="button-unique" id="buttonPONE"></div>
                     <div class="button-unique" id="buttonDELETE"></div>
                     <div class="button-unique" id="buttonRESET"></div>
                     <div class="button-unique" id="buttonRESETALL"></div>
@@ -61,7 +63,7 @@
             <div class="card-footer small text-muted"></div>
         </div>
 
-        <div>
+        <div id="hidden_elements">
           <input type="hidden" id="model_code" @change="persist()" v-model="modelCode" />
           <input type="hidden" id="current_type" v-bind:value="$route.params.type" />
           <input id="file" type="file" class="button_hidden" />
@@ -82,6 +84,7 @@ import DomainMenu from '../components/model_actions/DomainMenu'
 import ApplicationMenu from '../components/model_actions/ApplicationMenu'
 import Verification from '../components/model_actions/Verification'
 import BackEnd from '../components/model_actions/BackEnd'
+import VersionControlMenu from '../components/model_actions/VersionControlMenu'
 
 export default{
   data: function(){
@@ -103,7 +106,8 @@ export default{
     BackEnd,
     DomainMenu,
     ApplicationMenu,
-    Verification
+    Verification,
+    VersionControlMenu
   },
   mounted: function(){
     /**
@@ -180,7 +184,7 @@ export default{
       main(this.graph,this.layers,this.mxModel,this.toolbar,this.keyHandler,graphContainer,this.modelType,this.currentModel,counter,this.setupFunctions,this.undoManager, this.$route.params, this.$store);
       let outline = new mxOutline(this.graph, document.getElementById('navigator'));
       this.graph.currentVueInstance = this;
-		  outline.refresh();
+      outline.refresh();
     },
     hide_menu_options(domain_childs){
         for (let i = 0; i < domain_childs.length; i++) {

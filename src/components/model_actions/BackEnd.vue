@@ -6,7 +6,6 @@
     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
       <a @click="set_params()" class="dropdown-item">{{ $t("backend_setup") }}</a>
     </div>
-
   </li>
 </template>
 
@@ -23,13 +22,13 @@ export default {
       // modal header
       let c_header = modalH3(this.$t("backend_setup"));
       // modal body
-      let default_vals = "";
+      let default_vals = [];
       let texts = [this.$t("backend_setup_path")];
       let inputs = ["server_main_path"];
       if (localStorage["domain_implementation_main_path"]) {
-        default_vals = [localStorage["domain_implementation_main_path"]];
+        default_vals[0]  = [localStorage["domain_implementation_main_path"]];
       }else{
-        default_vals = ["http://localhost:8090/VariaMosServices/"];
+        default_vals[0] = "[VARIAMOS SERVICE URL]";
       }
       let c_body = modalInputTexts(texts,inputs,default_vals);
       // modal footer
