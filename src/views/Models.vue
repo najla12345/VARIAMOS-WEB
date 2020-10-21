@@ -366,9 +366,6 @@ export default{
 table{
 	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
   font-size: 14px;
- overflow-block: scroll;
-  overflow-x: auto;
-  overflow-y: auto;
 }
 
 .properties-table td{
@@ -410,5 +407,62 @@ table{
   padding-right: 7px;
   width: 25px;
   margin-right: 2px;
+}
+/*.tab2 {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}*/
+.cont {
+   -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  display: block;
+  background: rgba(255, 255, 255, 0.712);
+  border-radius: 15px;
+  padding: 20px;
+  float: left;
+  width: 100%;
+  text-align: left;
+   border: 1px solid #bbb;
+  border-bottom: 1px solid #fff;
+  border-radius: 5px 5px 0 0;
+}
+
+
+.tablinks {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+  order: 1; 
+	display: block;
+	padding: 1rem 2rem;
+	margin-right: 0.2rem;
+	cursor: pointer;
+  background: #90CAF9;
+  font-weight: bold;
+  transition: background ease 0.2s;
+  position: relative;
+  color: #000;
+  background: #fff;
+  border: 1px solid #bbb;
+  border-bottom: 1px solid #fff;
+  border-radius: 5px 5px 0 0;
+ 
+}
+
+/* Change background color of buttons on hover */
+.tablinks{
+  background-color: rgba(250, 246, 246, 0.966);
+}
+.tablinks.active{
+    background-color:white;
+}
+.tablinks:hover{
+    background-color:white;
 }
 </style>

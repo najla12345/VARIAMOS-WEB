@@ -5,7 +5,7 @@
 export function getModelInfo(){
     let info =[];
     //list of graphical models
-    info["gmodels"]=["feature","component","binding_feature_component","istar","adaptation_state","adaptation_hardware","adaptation_binding_state_hardware","control"];
+    info["gmodels"]=["feature","component","binding_feature_component","istar","adaptation_state","adaptation_hardware","adaptation_binding_state_hardware","control","bpmn"];
     //define feature model main info
     info["feature"]={projFolders:["Domain"]};
     //define component model main info
@@ -14,6 +14,8 @@ export function getModelInfo(){
     info["binding_feature_component"]={projFolders:["Domain"]};
     //define istar model main info
     info["istar"]={projFolders:["Domain"]};
+    //defin bpmn model main info
+    info["bpmn"]={projFolders:["Domain"]};
     //define adaptation_state model main info
     info["adaptation_state"]={projFolders:["Application"]};
     //define adaptation_hardware model main info
@@ -22,6 +24,7 @@ export function getModelInfo(){
     info["adaptation_binding_state_hardware"]={projFolders:["Application"]};
     //define control model main info
     info["control"]={projFolders:["Application"]};
+ 
     return info;
 }
 
@@ -84,6 +87,11 @@ export function getcontextmenulist(){
         fnHandler: 'deletedire',
 		icoName: 'fa fa-times',
 		btnName: 'delete'
-    }
+    };
+    info['create_prof'] = {
+        fnHandler: 'createprofil',
+        icoName: 'fa fa-folder',
+        btnName: 'New Profil'
+    }; 
     return info;
 }

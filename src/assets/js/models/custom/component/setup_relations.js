@@ -1,10 +1,14 @@
-let setup_relations = function setup_relations(graph,relations,relation_styles,constraints_relations){
+let setup_istar_relations = function setup_istar_relations(graph,relations,relation_styles){
     graph.connectionHandler.insertEdge = function(parent, id, value, source, target, style)
     {
+        let sourceType = source.getAttribute("type");
+        let targetType = target.getAttribute("type");
+
+        let relationType = 'rel_'+sourceType+'_'+targetType;
+
         let doc = mxUtils.createXmlDocument();
-        let node = doc.createElement('rel_'+source.getAttribute("type")+'_'+target.getAttribute("type"));
-        node.setAttribute('type', "relation");
-       // node.setAttribute('label', "");
+        let node = doc.createElement(relationType);
+        node.setAttribute('type', relationType);
 
         //by default bidirectional edges are not allowed (disjoint)
         if(target.edges != null && target.edges.length>0){
@@ -13,14 +17,6 @@ let setup_relations = function setup_relations(graph,relations,relation_styles,c
                     alert(global.messages["setup_relations_bidirectional"]);
                     return null;
                 }
-            }
-        }
-
-        //custom constraints for relations
-        if(constraints_relations){
-            let valid_connection = constraints_relations(graph, source, target);
-            if(!valid_connection){
-                return null;
             }
         }
 
@@ -44,7 +40,6 @@ let setup_relations = function setup_relations(graph,relations,relation_styles,c
             }
         }
 
-        //setup custom styles for relations
         if(relation_styles){
             for (let i = 0; i < relation_styles.length; i++) {
                 if(relation_styles[i]["rel_source_target"]=="and"){
@@ -60,9 +55,9 @@ let setup_relations = function setup_relations(graph,relations,relation_styles,c
             }
         }
         
-        let cell = graph.insertEdge(parent, id, node, source, target, style);
+        const cell = graph.insertEdge(parent, id, node, source, target, style);
         return cell;
     };
 }
 
-export default setup_relations
+export default setup_istar_relations

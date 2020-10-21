@@ -97,16 +97,144 @@ export function modalComponentInformation(structure, idx_cat, idx_subcat){
         else if(element.element_type === 'combo'){
             input = document.createElement('select');
             let index = 0;
+         
             element.element_items.forEach(optionText => {
                 const option = document.createElement('option');
                 option.value = index++;
                 option.text = optionText;
                 input.appendChild(option);
             });
-        } else if(element.element_type === 'textarea'){
+         /*  if(element.files!== undefined)
+           {  input = document.createElement('select');
+           let index = 0;
+        
+           element.files.forEach(optionText => {
+               const option = document.createElement('option');
+               console.log('jjjj');
+               option.value = index++;
+               option.text = optionText;
+               input.appendChild(option);});
+           }*/}
+         else if(element.element_type === 'textarea'){
             input = document.createElement('textarea');
             input.cols = 50;
-        } else {
+
+            const a = [];
+            a.forEach
+
+            if(element.interfaces !== undefined){
+                let str = '[';
+                element.interfaces.forEach((int, idx) => {
+                    str = str + int + (idx < element.interfaces.length - 1 ? ', ' : '');
+                })
+                str = str + ']';
+                input.innerText = str;
+            }  if(element.LoadedFiles !== undefined){
+                let str = '[';
+                element.LoadedFiles.forEach((int, idx) => {
+                    str = str + int + (idx < element.LoadedFiles.length - 1 ? ', ' : '');
+                })
+                str = str + ']';
+                input.innerText = str;
+            }
+
+            
+          /*  if(element.Relations !== undefined){
+                let str = '';
+                element.Relations.forEach((int, idx) => {
+                    str = str + int + (idx < element.interfaces.length - 1 ? ', ' : '');
+                })
+                str = str + ']';
+                input.innerText = str;
+            }*/
+        } else if(element.element_type === 'button') {
+            input = document.createElement('div');
+            const b1 = document.createElement('button');
+            b1.innerHTML = element.button1_txt !== undefined ? element.button1_txt.bold() : '';
+            b1.addEventListener('click', () => {
+                const count = (structure.basic_information.functions.length - 1)/2 + 1;
+                structure.basic_information.functions.push({element_id: `function${count}-name`, element_type: 'text'},{element_id: `function${count}-Description`, element_type: 'text'})
+                let main_modal_body = document.getElementById('main_modal_body');
+                main_modal_body.innerHTML="";
+                let c_body = modalComponentInformation(structure, idx_cat, idx_subcat);
+                main_modal_body.appendChild(c_body);
+            });
+            
+            const b2 = document.createElement('button');
+            b2.innerHTML = element.button2_txt !== undefined ? element.button2_txt.bold() : '';
+            b2.addEventListener('click', () => {
+                structure.basic_information.functions.pop();
+                structure.basic_information.functions.pop();
+                let main_modal_body = document.getElementById('main_modal_body');
+                main_modal_body.innerHTML="";
+                let c_body = modalComponentInformation(structure, idx_cat, idx_subcat);
+                main_modal_body.appendChild(c_body);
+            });
+            input.appendChild(b1);
+            input.appendChild(b2);
+        }
+        else if(element.element_type === 'button2') {
+            input = document.createElement('div');
+            const b3 = document.createElement('button');
+            b3.innerHTML = element.button3_txt !== undefined ? element.button3_txt.bold() : '';
+            b3.addEventListener('click', () => {
+                const count = (structure.Files.functions.length - 1)/3 +1;
+              console.log(count);
+                structure.Files.functions.push({element_id: `file${count}-name`, element_type: 'text'},{element_id: `file${count}-type`, element_type: 'combo',element_items:['component description','file of source code','class diagram','test case', 'configuration file','Service','configuration file','image']},{element_id: `file${count}-path`, element_type: 'text'})
+                let main_modal_body = document.getElementById('main_modal_body');
+                main_modal_body.innerHTML="";
+                let c_body = modalComponentInformation(structure, idx_cat, idx_subcat);
+                main_modal_body.appendChild(c_body);
+            });
+            
+            const b4 = document.createElement('button');
+            b4.innerHTML = element.button4_txt !== undefined ? element.button4_txt.bold() : '';
+            b4.addEventListener('click', () => {
+                structure.Files.functions.pop();
+                structure.Files.functions.pop();
+                structure.Files.functions.pop();
+                let main_modal_body = document.getElementById('main_modal_body');
+                main_modal_body.innerHTML="";
+                let c_body = modalComponentInformation(structure, idx_cat, idx_subcat);
+                main_modal_body.appendChild(c_body);
+            });
+            input.appendChild(b3);
+            input.appendChild(b4);
+        }
+        else if(element.element_type === 'button3') {
+            input = document.createElement('div');
+            const b5 = document.createElement('button');
+            b5.innerHTML = element.button5_txt !== undefined ? element.button5_txt.bold() : '';
+            b5.addEventListener('click', () => {
+                const count = (structure.Files.Relatione.length - 1)/3 + 1;
+              console.log(count);
+              const files=structure.Files.Relatione[1].element_items;
+              console.log(files);
+                structure.Files.Relatione.push({element_id: `fileSource${count}-name`, element_type: 'combo',element_items:files},{element_id: `file${count}-relation`, element_type: 'combo',element_items:['use','sub-class of','depend from','related with']},{element_id: `filetarget${count}-name`, element_type: 'combo',element_items:files})
+                let main_modal_body = document.getElementById('main_modal_body');
+                main_modal_body.innerHTML="";
+                let c_body = modalComponentInformation(structure, idx_cat, idx_subcat);
+                main_modal_body.appendChild(c_body);
+            });
+            
+            const b6 = document.createElement('button');
+            b6.innerHTML = element.button6_txt !== undefined ? element.button6_txt.bold() : '';
+            b6.addEventListener('click', () => {
+                structure.Files.Relatione.pop();
+                structure.Files.Relatione.pop();
+                structure.Files.Relatione.pop();
+             
+                let main_modal_body = document.getElementById('main_modal_body');
+                main_modal_body.innerHTML="";
+                let c_body = modalComponentInformation(structure, idx_cat, idx_subcat);
+                main_modal_body.appendChild(c_body);
+            });
+            input.appendChild(b5);
+            input.appendChild(b6);
+        }
+        else
+        
+        {
             alert("A problem occurred");
         }
 
@@ -189,6 +317,4 @@ export function downloadFile(filename, text) {
     element.click(); 
     document.body.removeChild(element);
 }
-
-/* end util */
 

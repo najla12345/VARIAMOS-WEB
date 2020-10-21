@@ -61,8 +61,15 @@ let feature_main = function feature_main(graph)
 			"types":["concrete"],
 			"custom_attributes":[{
 				"name":"selected",
-				"def_value":"false"
-			}]
+				"def_value":"false",
+			
+			},
+			{"name":"critical",
+			"def_value":"false"},
+			{"name":"variability", 
+			"def_value":"false",}
+		
+		]
 
 		};
 		return attributes;
@@ -90,7 +97,15 @@ let feature_main = function feature_main(graph)
 					"attribute":"selected",
 					"input_type":"checkbox",
 					"onchange": feature_custom_methods(3)
-				}
+				},
+				{"attribute":"critical",
+				"input_type":"select",
+				"input_values":["NaN","heigh critical","meduim critical","low critical","not critical"],
+				"def_value":"not critical"},
+				{"attribute":"variability",
+				"input_type":"select",
+				"input_values":["NaN","static ","dynamic"],
+				"def_value":"NaN"}
 			],
 			"relation":[{
 					"attribute":"relType",

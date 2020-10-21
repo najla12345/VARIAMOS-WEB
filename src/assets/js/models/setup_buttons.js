@@ -61,7 +61,7 @@ let setup_buttons = function setup_buttons(graph,undoManager,reused_functions,ro
     /* end buttonreset */
 
     /* begin buttonsave */
-    // Adds an option to save in localstorage the graph
+    // Adds an option to save in age the graph
     let buttonSAVE = document.getElementById('buttonSAVE');
     buttonSAVE.innerHTML="";
     buttonSAVE.appendChild(mxUtils.button_with_icon(global.messages["setup_buttons_save"], function()

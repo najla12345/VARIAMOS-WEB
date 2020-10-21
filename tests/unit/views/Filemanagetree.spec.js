@@ -225,6 +225,34 @@ describe('Filemanagetree', () => {
     expect(wrapper.vm.newApplication.isshow).to.be.ok
     __rewire_reset_all__();
   })
+//create profil
+it('createProfil() Creates a new profil folder in non-empty project', () => {
+  Filemanagetree.__Rewire__('Bus', localBus)
+  const emptyState = false;
+  const wrapper = wrapperFactory(emptyState)
+  const data = wrapper.vm.getdata[0]
+  localBus.$emit('createprofil', data)
+  wrapper.setData({
+    newProfil: {
+      ...wrapper.vm.newProfil,
+      profilName: 'TEST',
+    }
+  })
+  wrapper.vm.createProfil()
+  expect(mockDispatch).to.have.been.calledWith('createprofil')
+  expect(mockDispatch.getCall(0).args[1].profilName).to.deep.equal('TEST')
+  __rewire_reset_all__();
+})
+
+it('Bus.$on("createprofil") shows modal correctly', () => {
+  Filemanagetree.__Rewire__('Bus', localBus)
+  const emptyState = false
+  const wrapper = wrapperFactory(emptyState)
+  const data = wrapper.vm.getdata[0]
+  localBus.$emit('createprofil', data)
+  expect(wrapper.vm.newProfil.isshow).to.be.ok
+  __rewire_reset_all__();
+})
 
   it('Bus.$on("createadaption")(sic) shows modal correctly', () => {
     Filemanagetree.__Rewire__('Bus', localBus)

@@ -50,6 +50,9 @@ export const actions = {
     },
     createapplication ({commit, getters}, app) {
         commit('createnewapplication', {app, getters});
+	},
+	createprofil ({commit, getters}, pr) {
+        commit('createnewprofil', {pr, getters});
     },
     createadaptation ({commit, getters}, adp) {
         commit('createnewadaptation', {adp, getters});
@@ -126,7 +129,7 @@ export const mutations = {
 				modeltype: 1,
 				contextmenuIndex: 'project'
 			},
-			numberOfChildren: 2
+			numberOfChildren: 3
 	    },{
 			children: [],
 			data: {
@@ -172,7 +175,25 @@ export const mutations = {
 				contextmenuIndex: 'adaptation_folder'
 			},
 			numberOfChildren: 0
-		});
+		},
+		{
+			children: [],
+			data: {
+				open: false,
+				isSelected: false,
+				level: 3,
+				nodeId: temp+3,
+				nodeName: "Profil - " + name + " - 1" + " - 1",
+				nodeType: 1,
+				parentId: temp+2,
+				projectId: temp,
+				modeltype: 1,
+				contextmenuIndex: 'empty'
+			},
+			numberOfChildren: 0
+		}
+		);
+		state.data = insertmodel(state.data, 4, getters.getnewnodeid);
 		state.data = insertmodel(state.data, 3, getters.getnewnodeid);
 		state.data = insertmodel(state.data, 2, getters.getnewnodeid);
 		state.data = insertmodel(state.data, 1, getters.getnewnodeid);
@@ -241,6 +262,29 @@ export const mutations = {
 		state.data[adp.index].numberOfChildren++;
 		state.data = insertmodel(state.data, adp.index + 1, getters.getnewnodeid);
 	},
+	//profil
+	createnewprofil (state, {pr, getters}) {
+        let temp = getters.getnewnodeid;
+		state.data.splice(pr.index + 1, 0 , {
+			children: [],
+			data: {
+				open: false,
+				isSelected: false,
+				level: state.data[pr.index].data.level + 1,
+				nodeId: temp,
+				nodeName: "Profil -" + pr.parentFolder.split('-')[1] + "-"+ pr.parentFolder.split('-')[2] + " - " + pr.profilName,
+				nodeType: 1,
+				parentId: state.data[pr.index].data.nodeId,
+				projectId: state.data[pr.index].data.projectId,
+				modeltype: state.data[pr.index].data.modeltype,
+				contextmenuIndex: 'empty'
+			},
+			numberOfChildren: 0
+		});
+		state.data[pr.index].numberOfChildren++;
+		state.data = insertmodel(state.data, pr.index + 1, getters.getnewnodeid);
+	},
+
 	updatefolder (state, index){
 		for(let i = index + 1; i < state.data.length; i++)
 		{

@@ -4,10 +4,10 @@ let setup_relations = function setup_relations(graph,relations,relation_styles,c
         let doc = mxUtils.createXmlDocument();
         let node = doc.createElement('rel_'+source.getAttribute("type")+'_'+target.getAttribute("type"));
         node.setAttribute('type', "relation");
-       // node.setAttribute('label', "");
+        node.setAttribute('relType', "");
 
         //by default bidirectional edges are not allowed (disjoint)
-        if(target.edges != null && target.edges.length>0){
+       /* if(target.edges != null && target.edges.length>0){
             for (let i = 0; i < target.edges.length; i++) {
                 if(target.edges[i].target.getId()==source.getId()){
                     alert(global.messages["setup_relations_bidirectional"]);
@@ -15,7 +15,7 @@ let setup_relations = function setup_relations(graph,relations,relation_styles,c
                 }
             }
         }
-
+*/
         //custom constraints for relations
         if(constraints_relations){
             let valid_connection = constraints_relations(graph, source, target);

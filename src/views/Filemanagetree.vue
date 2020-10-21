@@ -85,6 +85,33 @@
     			</div>
   			</div>
 		</div>
+		<div class="modal fade" id="newProfil" tabindex="-1" role="dialog" aria-labelledby="newProfilLabel" aria-hidden="true" style="position:fixed">
+  			<div class="modal-dialog" role="document">
+    			<div class="modal-content">
+      				<div class="modal-header">
+        				<h5 class="modal-title">{{$t('filemanagement_newprofil_title')}}</h5>
+        				<button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="closemodal">
+          					<span aria-hidden="true">&times;</span>
+        				</button>
+      				</div>
+      				<div class="modal-body">
+        				<form>
+							<div class="form-group">
+								<label class="col-form-label">{{$t("filemanagement_newprofil_father")}}</label>
+								<input type="text" class="form-control" disabled v-model="newProfil.parentFolder" />
+							</div>
+							<div class="form-group">
+								<label class="col-form-label"><em>*</em>{{$t("filemanagement_newprofil_label")}}</label>
+								<input type="text" class="form-control" maxlength="70" v-model="newProfil.profilName" :placeholder="$t('filemanagement_newprofil_context')" />
+							</div>
+						</form>
+					</div>
+     				 <div class="modal-footer">
+        				<button type="button" class="btn btn-primary" @click="createProfil" >OK</button>
+      				</div>
+    			</div>
+  			</div>
+		</div>
 		<div class="modal fade" id="newAdaptation" tabindex="-1" role="dialog" aria-labelledby="newAdaptationLabel" aria-hidden="true" style="position:fixed">
   			<div class="modal-dialog" role="document">
     			<div class="modal-content">
@@ -184,6 +211,13 @@ export default{
 				applicationName: '',
 				parentFolder: ''
 			},
+				newProfil: {
+				index: null,
+				id:null,
+				parentId: null,
+				profilName: '',
+				parentFolder: ''
+			},
 			/**
 			 * temporary object to store information for a new adaptation folder
 			 * @property	{string} adapatationName	- the name of the new adaptation folder
@@ -238,6 +272,19 @@ export default{
 			this.newApplication.parentId = data.data.nodeId;
 			this.openmodal('#newApplication');
 		});
+		/**
+		 * open a modal to create a new application folder
+		 * @listens module:contextMenu~event:createprofil
+		 */
+			Bus.$on('createprofil', data => {
+			this.newProfil.index = this.getIndexById(data.data.nodeId);
+			this.newProfil.profilName = '';
+			this.newProfil.parentFolder = data.data.nodeName;
+			this.newProfil.parentId = data.data.nodeId;
+			this.openmodal('#newProfil');
+		});
+		
+		
 		/**
 		 * open a modal to create a new adaptation folder
 		 * @listens module:contextMenu~event:createadaption
@@ -310,6 +357,8 @@ export default{
 			this.newApplication.id=null;
 			this.newAdaptation.adapatationName='';
 			this.newAdaptation.id=null;
+			this.newProfil.profilName='';
+			this.newProfil.id=null;
 		},
 		/**
 		 * get the index in the tree data array
@@ -414,6 +463,55 @@ export default{
 				 */
 				this.$store.dispatch('createapplication', this.newApplication);
 				$('#newApplication').modal('hide');
+			}
+		},
+			createProfil(){
+				let x=document.getElementById('mainview');
+				let d=document.createElement('input');
+				
+				x.appendChild(d);
+			let data = this.getdata;
+			this.$store.dispatch('createprofil', this.newProfil);
+				$('#newProfil').modal('hide');
+			if(typeof(this.newProfil.index) === 'undefined'){
+				return
+			}
+			// keep the folder open
+			if(!data[this.newProfil.index].data.open){
+				this.$refs.cotalogue.expand_menu(this.newProfil.index);
+			}
+
+			let app = this.newProfil;
+			// check the duplicated application name
+			if(typeof (data.find(function(data_diagram){
+				return data_diagram.data.nodeName.split('- ')[2] === app.profilName && data_diagram.data.parentId === app.parentId;
+			}))!=='undefined')
+			{
+          		this.openmodal('#errormodal');
+				this.errormessage = this.$t("filemanagement_newprofil_error1");
+			}
+			// check the empty application name
+			else if(this.newProfil.profilName.length === 0){
+				this.openmodal('#errormodal');
+				this.errormessage = this.$t("filemanagement_newprofil_error2");
+			}
+			else {
+				/**
+				 * @deprecated the counter of application folder is not used
+				 */
+				let index = 0;
+				for(let i = 0; i < data.length; i++)
+				{
+					if(data[i].data.parentId === app.parentId && data[i].data.nodeName.includes('Profil'))
+						index++;
+				}
+				this.newProfil.appindex = index + 1;
+				/**
+				 * add new application folder and close modal
+				 * @fires module:store~actions:createprofil
+				 */
+				/*this.$store.dispatch('createprofil', this.newProfil);
+				$('#newProfil').modal('hide');*/
 			}
 		},
 		/**

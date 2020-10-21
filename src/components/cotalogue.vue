@@ -36,6 +36,14 @@
 								:style="{position: 'absolute',left: (20 * item.data.level - 17) + 'px',top: '6px'}"
 								data-test="modelFolder">
 							</i>
+								<i v-if="item.data.nodeType===3"
+								class="fa"
+								aria-hidden="true"
+								:class="['fa-angle-right']"
+								@click="expand_menu($index)"
+								:style="{position: 'absolute',left: (20 * item.data.level - 17) + 'px',top: '6px'}"
+								data-test="modelFolder">
+							</i>
 							<span class="name-container"
 								:class="'vue-contextmenuName-menu' + item.data.nodeType + item.data.nodeId"
 								@dblclick="dblClick($index)"
@@ -309,7 +317,10 @@ export default {
 			// if project is open, change its context menu
 			else if(data[index].data.level === 1 && data[index].data.open)
 			{
-				this.contextMenuData.menulists['project']=[getcontextmenulist()['create_app']];
+				this.contextMenuData.menulists['project']=[getcontextmenulist()['create_app'],getcontextmenulist()['create_prof']];
+				//add for profil
+			
+
 			}
 			// if project is not open, change its context menu
 			else if(data[index].data.level === 1 && !data[index].data.open)
@@ -331,7 +342,7 @@ export default {
 		// double click folder and project will trigger expand menu
 		dblClick(index){
 			let data = this.getdata;
-			if(data[index].data.nodeType === 1)
+			if(data[index].data.nodeType === 1)profil
 				this.expand_menu(index);
 		},
 		// get the right click event and the current location
