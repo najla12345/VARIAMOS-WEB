@@ -35,36 +35,35 @@ var bpmn_main = function bpmn_main(graph)
     function bpmn_elements(){
         const textOpts = 'overflow=visible;whiteSpace=wrap;html=1;';
         const offsetLabelOpts = 'verticalLabelPosition=top;verticalAlign=bottom;';
-        var component = {src:projectPath+"images/models/component/component.png", wd:100, hg:40, style:"shape=component", type:"component", pname:"Component"};
         var end = {src:projectPath+"images/models/bpmn/end.PNG", wd:100, hg:40, style:"shape=GeneralEnd", type:"GeneralEnd", pname:"GeneralEnd"};
         var task = {src:projectPath+"images/models/bpmn/task.PNG", wd:125, hg:50, style:"shape=Task;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"Task", pname:"Task"};
         var variantTask = {src:projectPath+"images/models/bpmn/task.PNG", wd:125, hg:50, style:"shape=Task;dashed=1;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"VariantTask", pname:"VariantTask"};
         var timer = {src:projectPath+"images/models/bpmn/timer.PNG", wd:125, hg:50, style:"shape=TimerStart;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"TimerStart", pname:"TimerStart"};
-        var message = {src:projectPath+"images/models/bpmn/message.PNG", wd:125, hg:50, style:"shape=MessageStart;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"message", pname:"message"};
+        var message = {src:projectPath+"images/models/bpmn/message.PNG", wd:125, hg:50, style:"shape=MessageStart;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"message", pname:"Message"};
         var GatewayEvent = {src:projectPath+"images/models/bpmn/GatewayEvent.PNG", wd:125, hg:50, style:"shape=GatewayEvent;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"GatewayEvent", pname:"GatewayEvent"};
         var GateWay = {src:projectPath+"images/models/bpmn/Gateaway.PNG", wd:125, hg:50, style:"shape=Gateway;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"Gateway", pname:"Gateway"};
         var GateWayAnd = {src:projectPath+"images/models/bpmn/paralell.PNG",wd:125, hg:50, style:"shape=GatewayAND;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"GatewayAND", pname:"GatewayAND"};
         var GateWayComplex = {src:projectPath+"images/models/bpmn/Complex.PNG", wd:125, hg:50, style:"shape=GatewayCOMPLEX;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"GatewayCOMPLEX", pname:"GatewayCOMPLEX"};
         var UserTask = {src:projectPath+"images/models/bpmn/UserTask.PNG", wd:125, hg:50, style:"shape=UserTask;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"UserTask", pname:"UserTask"};
         var ServiceTask = {src:projectPath+"images/models/bpmn/ServiceTask.PNG", wd:125, hg:50, style:"shape=ServiceTask;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"ServiceTask", pname:"ServiceTask"};
-        var transaction = {src:projectPath+"images/models/bpmn/transaction.PNG", wd:125, hg:50, style:"shape=transaction;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"transaction", pname:"transaction"};
+        var transaction = {src:projectPath+"images/models/bpmn/transaction.PNG", wd:125, hg:50, style:"shape=transaction;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"transaction", pname:"Transaction"};
         var CallActivity = {src:projectPath+"images/models/bpmn/CallActivity.PNG", wd:125, hg:50, style:"shape=CallActivity;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"CallActivity", pname:"CallActivity"};
-        var eventsubprocess = {src:projectPath+"images/models/bpmn/eventsubprocess.PNG", wd:125, hg:50, style:"shape=eventsubprocess;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"eventsubprocess", pname:"eventsubprocess"};
-        var loopedsubprocess = {src:projectPath+"images/models/bpmn/loopedsubprocess.PNG", wd:125, hg:50, style:"shape=loopedsubprocess;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"loopedsubprocess", pname:"loopedsubprocess"};
-        var processtimer = {src:projectPath+"images/models/bpmn/processtimer.PNG", wd:125, hg:50, style:"shape=loopedsubprocess;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"processtimer", pname:"processtimer"};
-        var receive = {src:projectPath+"images/models/bpmn/receive.PNG", wd:125, hg:50, style:"shape=receive;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"receive", pname:"receive"};
-        var scriptTask = {src:projectPath+"images/models/bpmn/scriptTask.PNG", wd:125, hg:50, style:"shape=scriptTask;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"scriptTask", pname:"scriptTask"};
-        var sendTask = {src:projectPath+"images/models/bpmn/sendTask.PNG", wd:125, hg:50, style:"shape=sendTask;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"sendTask", pname:"sendTask"};
+        var eventsubprocess = {src:projectPath+"images/models/bpmn/eventsubprocess.PNG", wd:125, hg:50, style:"shape=eventsubprocess;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"eventsubprocess", pname:"EventSubProcess"};
+        var loopedsubprocess = {src:projectPath+"images/models/bpmn/loopedsubprocess.PNG", wd:125, hg:50, style:"shape=loopedsubprocess;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"loopedsubprocess", pname:"LoopedSubProcess"};
+        var processtimer = {src:projectPath+"images/models/bpmn/processtimer.PNG", wd:125, hg:50, style:"shape=loopedsubprocess;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"processtimer", pname:"ProcessTimer"};
+        var receive = {src:projectPath+"images/models/bpmn/receive.PNG", wd:125, hg:50, style:"shape=receive;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"receive", pname:"Receive"};
+        var scriptTask = {src:projectPath+"images/models/bpmn/scriptTask.PNG", wd:125, hg:50, style:"shape=scriptTask;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"scriptTask", pname:"ScriptTask"};
+        var sendTask = {src:projectPath+"images/models/bpmn/sendTask.PNG", wd:125, hg:50, style:"shape=sendTask;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"sendTask", pname:"SendTask"};
         var messageStart= {src:projectPath+"images/models/bpmn/start.PNG", wd:125, hg:50, style:"shape=start;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"Start", pname:"Start"};
         var Terminate= {src:projectPath+"images/models/bpmn/terminate.PNG", wd:125, hg:50, style:"shape=Terminate;html=1;whiteSpace=wrap;;overflow=visible;fontColor=white;", type:"Terminate", pname:"Terminate"};
-        const Pool= {src:projectPath+"images/models/component/file.png", wd:500, hg:300, style:"shape=horizontalPool;;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"horizontalPool", pname:"horizontalPool"};
+        const Pool= {src:projectPath+"images/models/component/file.png", wd:500, hg:300, style:"shape=horizontalPool;;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"horizontalPool", pname:"HorizontalPool"};
         const Lane= {src:projectPath+"images/models/component/file.png", wd:500, hg:300, style:"shape=rectangle;fillColor=transparent;strokeWidth=3;rounded=0;arcSize=15;verticalAlign=text-top;fontColor=black;fontSize=20;fontStyle=1;", type:"Lane", pname:"Lane"};
        // Lane.style.name.visibility="hidden";
-       var input = {src:projectPath+"images/models/bpmn/Elementdatainput.png", wd:50, hg:80, style:"shape=dataObjectInput;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"dataObjectInput", pname:"dataObjectInput"};
-       var dataObject = {src:projectPath+"images/models/bpmn/Elementdataobject.png", wd:50, hg:80, style:"shape=dataObject;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"dataObject", pname:"dataObject"}; 
-       var dataObjectCollection = {src:projectPath+"images/models/bpmn/Elementdataobjectcollection.png", wd:50, hg:80, style:"shape=dataObject;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"dataObjectCollection", pname:"dataObjectCollection"}; 
+       var input = {src:projectPath+"images/models/bpmn/Elementdatainput.png", wd:50, hg:80, style:"shape=dataObjectInput;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"dataObjectInput", pname:"DataObjectInput"};
+       var dataObject = {src:projectPath+"images/models/bpmn/Elementdataobject.png", wd:50, hg:80, style:"shape=dataObject;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"dataObject", pname:"DataObject"}; 
+       var dataObjectCollection = {src:projectPath+"images/models/bpmn/Elementdataobjectcollection.png", wd:50, hg:80, style:"shape=dataObject;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"dataObjectCollection", pname:"DataObjectCollection"}; 
        var datastore = {src:projectPath+"images/models/bpmn/datastore.png", wd:50, hg:80, style:"shape=datastore;html=1;whiteSpace=wrap;;overflow=visible;fontColor=black;", type:"datastore", pname:"datastore"}; 
-       var base= {src:projectPath+"images/models/component/file.png", wd:500, hg:300,style: "shape=rectangle;fillColor=transparent;strokeWidth=3;rounded=2;arcSize=15;verticalAlign=text-top;fontColor=black;fontSize=20;fontStyle=1;", type:"baseCompositionModel", pname:"baseCompositionModel"};
+       var base= {src:projectPath+"images/models/component/file.png", wd:500, hg:300,style: "shape=rectangle;fillColor=transparent;strokeWidth=3;rounded=2;arcSize=15;verticalAlign=text-top;fontColor=black;fontSize=20;fontStyle=1;", type:"BaseCompositionModel", pname:"BaseCompositionModel"};
        const variant= {src:projectPath+"images/models/component/file.png", wd:500, hg:100, style:"shape=rectangle;fillColor=transparent;strokeWidth=3;rounded=2;arcSize=15;verticalAlign=text-top;fontColor=black;fontSize=20;fontStyle=1;", type:"Variant", pname:"Variant"};
        var elements=[];
         elements[0]=messageStart;
@@ -95,9 +94,10 @@ var bpmn_main = function bpmn_main(graph)
         elements[25]=base;
         elements[26]=variant;
         elements[27]=variantTask;
+        elements[28]=eventsubprocess;
         elements.forEach(elem => {
           elem.style += textOpts
-          if(["Gateway", "GatewayAND", "GatewayEvent", "GatewayCOMPLEX"].includes(elem.pname)){
+          if(["Gateway", "GatewayAND", "GatewayEvent", "GatewayCOMPLEX","TimerStart","Message"].includes(elem.pname)){
             elem.style += offsetLabelOpts;
           }
         });
@@ -188,17 +188,19 @@ var bpmn_main = function bpmn_main(graph)
     function BPMNPropertiesStyles(){
   
       const model = graph.getModel();
-      console.log(model);
+     // console.log(model);
                 //get graph Root
       const par=model.cells.component.children;
       console.log(par);
       const feat=model.cells.feature.children;
-
-      const parent = model.cells.component.children[0].value.attributes.label.value;
-      let bpmnLayer = model.getCell("component"); 
       let compo=[];
       let frag=[];
       let featureSet=[];
+if(feat!==null)
+{
+     // const parent = model.cells.component.children[0].value.attributes.label.value;
+      //let bpmnLayer = model.getCell("component"); 
+    
       let f=0;
       let i=0;
       let j=0;
@@ -209,7 +211,12 @@ var bpmn_main = function bpmn_main(graph)
         f=f+1;}
         
         }}
-        );
+        );}
+        if(par!==null)
+        {
+          let f=0;
+          let i=0;
+          let j=0;
       par.forEach(cell => {
 if(cell.value.attributes.label!==undefined)
 {if(cell.value.localName==='component')
@@ -220,6 +227,7 @@ else if(cell.value.localName==='fragment')
   j=j+1;}
 }}
 );
+}
       console.log(par);
         let styles = {};
       
