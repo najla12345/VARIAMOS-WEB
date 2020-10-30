@@ -95,6 +95,8 @@ var bpmn_main = function bpmn_main(graph)
         elements[26]=variant;
         elements[27]=variantTask;
         elements[28]=eventsubprocess;
+        var contextVar = {src:projectPath+"images/models/bpmn/task.PNG", wd:125, hg:50, style:"shape=Task;html=1;whiteSpace=wrap;;overflow=visible;fontColor=white;", type:"CVar", pname:"CVar"};
+        elements.push(contextVar);
         elements.forEach(elem => {
           elem.style += textOpts
           if(["Gateway", "GatewayAND", "GatewayEvent", "GatewayCOMPLEX","TimerStart","Message"].includes(elem.pname)){
@@ -165,6 +167,20 @@ var bpmn_main = function bpmn_main(graph)
 
          }
         ]
+        });
+        attributes.push({
+          "types":["CVar"],
+          "custom_attributes":[
+            {
+              "name": "Origin"
+            },
+            {
+              "name": "Measure"
+            },
+            {
+              "name": "Description"
+            }
+          ]
         });
       
         return attributes;

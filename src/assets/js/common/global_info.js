@@ -6,7 +6,7 @@ export function getModelInfo(){
     let info = [];
     //list of graphical models
     info["gmodels"] = ["feature", "component", "binding_feature_component", "istar", "classdiag", "adap_architecture",
-        "adaptation_hardware","adaptation_behavior_hardware","adaptation_state","adaptation_behavior_states","adaptation_behavior_transitions","control","bpmn"];
+        "adaptation_hardware","adaptation_behavior_hardware","adaptation_state","adaptation_behavior_states","adaptation_behavior_transitions","control","bpmn","context"];
     //define feature model main info
     info["feature"] = {projFolders:["Domain"], label:"Feature"};
     //define component model main info
@@ -19,6 +19,7 @@ export function getModelInfo(){
     info["istar"] = {projFolders:["Domain"], label:"iStar"};
     //defin bpmn model main info
     info["bpmn"]={projFolders:["Domain"], label:"BPMN"};
+    info["context"] = {projFolders:["Domain"], label:"ContextModel"};
     //define class diagram model main info
     info["classdiag"] = {projFolders:["Domain"], label:"Class Diagram"}
     //define adaptation_state model main info
